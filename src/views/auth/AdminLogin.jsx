@@ -50,9 +50,9 @@ const AdminLogin = () => {
     },[errorMessage,successMessage])
 
     return (
-        <div className='min-w-screen min-h-screen bg-[#cdcae9] flex justify-center items-center' >
+        <div className='min-w-screen min-h-screen bg-[#adcadb] flex justify-center items-center' >
           <div className='w-[350px] text-[#ffffff] p-2'>
-            <div className='bg-[#6f68d1] p-4 rounded-md'>
+            <div className='bg-[#63d0fc] p-4 rounded-md'>
                
         <div className='h-[70px] flex justify-center items-center'>
             <div className='w-[180px] h-[50px]'>
