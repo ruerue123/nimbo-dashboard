@@ -6,4 +6,7 @@ export const overrideStyle = {
     justifyContent : 'center',
     alignItems : 'center'
 }
-export const socket = io('https://nimbo-backend-1.onrender.com')
+export const socket = io('https://nimbo-backend-1.onrender.com', {
+                        transports: ['websocket'],
+                        withCredentials: true
+});
