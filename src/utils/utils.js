@@ -7,6 +7,6 @@ export const overrideStyle = {
     alignItems : 'center'
 }
 export const socket = io('https://nimbo-backend-1.onrender.com', {
-                        transports: ['websocket'],
+                        transports: ['websocket' 'polling'],
                         withCredentials: true
 });
