@@ -4,19 +4,23 @@ import { jwtDecode } from "jwt-decode";
 
 export const admin_login = createAsyncThunk(
     'auth/admin_login',
-    async(info,{rejectWithValue, fulfillWithValue}) => {
-         console.log(info)
+    async (info, { rejectWithValue, fulfillWithValue }) => {
         try {
-            const {data} = await api.post('/admin-login',info,{withCredentials: true})
-            localStorage.setItem('accessToken',data.token)
-            // console.log(data)
-            return fulfillWithValue(data)
+            const { data } = await api.post('/admin-login', info, { withCredentials: true });
+
+            const token = data.token;
+            localStorage.setItem('accessToken', token);
+
+            return fulfillWithValue({
+                ...data,
+                token, // Explicitly return token
+            });
         } catch (error) {
-            // console.log(error.response.data)
-            return rejectWithValue(error.response.data)
+            const message = error.response?.data || error.message;
+            return rejectWithValue(message);
         }
     }
-)
+);
 
 
 export const seller_login = createAsyncThunk(
