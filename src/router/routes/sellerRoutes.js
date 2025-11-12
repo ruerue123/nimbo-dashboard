@@ -10,6 +10,7 @@ const SellerToAdmin = lazy(()=> import('../../views/seller/SellerToAdmin'))
 const SellerToCustomer = lazy(()=> import('../../views/seller/SellerToCustomer'))
 const Profile = lazy(()=> import('../../views/seller/Profile'))
 const EditProduct = lazy(()=> import('../../views/seller/EditProduct'))
+const DeleteProduct = lazy(()=> import('../../views/seller/DeleteProduct'))
 const OrderDetails = lazy(()=> import('../../views/seller/OrderDetails'))
 const Pending = lazy(()=> import('./../../views/Pending')) 
 const Deactive = lazy(()=> import('./../../views/Deactive')) 
@@ -45,6 +46,14 @@ export const sellerRoutes = [
         role : 'seller',
         status : 'active'
     },
+
+    {
+    path: '/seller/dashboard/delete-product/:productId',
+    element : <DeleteProduct/>,
+    role : 'seller',
+    status : 'active'
+},
+
     {
         path: '/seller/dashboard/products',
         element : <Products/>,
