@@ -132,7 +132,6 @@ const AddProduct = () => {
         formData.append('stock',state.stock)
         formData.append('discount',state.discount)
         formData.append('brand',state.brand)
-        formData.append('shopName','Fashion Killers')
         formData.append('category',category)
 
         for (let i = 0; i < images.length; i++) {
