@@ -57,10 +57,10 @@ export const get_product = createAsyncThunk(
   // End Method 
   export const delete_product = createAsyncThunk(
   'product/delete_product',
-  async (productId, { rejectWithValue }) => {
+  async (productId, { rejectWithValue, fulfillWithValue }) => {
     try {
-      const { data } = await api.delete(`/product/delete/${productId}`);
-      return data;
+      const { data } = await api.delete(`/product-delete/${productId}`, { withCredentials: true });
+      return fulfillWithValue(data);
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -171,11 +171,22 @@ export const productReducer = createSlice({
              
         })
 
-        .addCase(product_image_update.fulfilled, (state, { payload }) => { 
-            state.product = payload.product 
-            state.successMessage = payload.message  
+        .addCase(product_image_update.fulfilled, (state, { payload }) => {
+            state.product = payload.product
+            state.successMessage = payload.message
         })
- 
+
+        .addCase(delete_product.pending, (state) => {
+            state.loader = true;
+        })
+        .addCase(delete_product.rejected, (state, { payload }) => {
+            state.loader = false;
+            state.errorMessage = payload?.error || 'Failed to delete product'
+        })
+        .addCase(delete_product.fulfilled, (state, { payload }) => {
+            state.loader = false;
+            state.successMessage = payload.message
+        })
 
     }
 
