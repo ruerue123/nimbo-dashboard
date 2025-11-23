@@ -147,10 +147,13 @@ export const OrderReducer = createSlice({
         })
 
         .addCase(update_delivery_details.rejected, (state, { payload }) => {
-            state.errorMessage = payload.message;
+            state.errorMessage = payload?.message || 'Failed to update delivery details';
         })
         .addCase(update_delivery_details.fulfilled, (state, { payload }) => {
             state.successMessage = payload.message;
+            if (payload.order) {
+                state.order = payload.order;
+            }
         })
 
     }
