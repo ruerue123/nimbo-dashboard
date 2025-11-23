@@ -1,22 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import Search from '../components/Search';
 import { Link } from 'react-router-dom';
-import Pagination from '../Pagination'; 
-import { FaEdit, FaEye, FaTrash } from 'react-icons/fa'; 
+import Pagination from '../Pagination';
+import { FaEdit, FaTrash, FaBox, FaPlus, FaSearch, FaImage } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { get_products } from '../../store/Reducers/productReducer';
-import { LuImageMinus } from "react-icons/lu";
-
 
 const Products = () => {
-
     const dispatch = useDispatch()
-    const { products,totalProduct} = useSelector(state=> state.product)
-   
+    const { products, totalProduct } = useSelector(state => state.product)
+
     const [currentPage, setCurrentPage] = useState(1)
     const [searchValue, setSearchValue] = useState('')
-    const [parPage, setParPage] = useState(5)
-
+    const [parPage, setParPage] = useState(10)
 
     useEffect(() => {
         const obj = {
@@ -25,90 +20,175 @@ const Products = () => {
             searchValue
         }
         dispatch(get_products(obj))
-
-    },[searchValue, currentPage,parPage])
+    }, [searchValue, currentPage, parPage, dispatch])
 
     return (
-        <div className='px-2 lg:px-7 pt-5'>
-            <h1 className='text-[#000000] font-semibold text-lg mb-3'>All Products</h1>
-
-         <div className='w-full p-4 bg-[#6a5fdf] rounded-md'> 
-         <Search setParPage={setParPage} setSearchValue={setSearchValue} searchValue={searchValue} />
-
-
-         <div className='relative overflow-x-auto mt-5'>
-    <table className='w-full text-sm text-left text-[#d0d2d6]'>
-        <thead className='text-sm text-[#d0d2d6] uppercase border-b border-slate-700'>
-        <tr>
-            <th scope='col' className='py-3 px-4'>No</th>
-            <th scope='col' className='py-3 px-4'>Image</th>
-            <th scope='col' className='py-3 px-4'>Name</th>
-            <th scope='col' className='py-3 px-4'>Category</th>
-            <th scope='col' className='py-3 px-4'>Brand</th>
-            <th scope='col' className='py-3 px-4'>Price</th>
-            <th scope='col' className='py-3 px-4'>Discount</th>
-            <th scope='col' className='py-3 px-4'>Stock</th>
-            <th scope='col' className='py-3 px-4'>Action</th> 
-        </tr>
-        </thead>
-
-        <tbody>
-            {
-                products.map((d, i) => <tr key={i}>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{i + 1}</td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>
-                    <img className='w-[45px] h-[45px]' src={ d.images[0]} alt="" />
-                </td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{ d?.name?.slice(0,15)}...</td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{ d.category }</td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{d.brand} </td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>${d.price}</td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>
-                    {
-                        d.discount === 0 ? <span>No Discount</span> : 
-
-                        <span>%{d.discount}</span>
-                    }
-                    
-                     </td>
-                
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{d.stock}</td>
-                 
-    <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>
-        <div className='flex justify-start items-center gap-4'>
-        <Link to={`/seller/dashboard/edit-product/${d._id}`} className='p-[6px] bg-yellow-500 rounded hover:shadow-lg hover:shadow-yellow-500/50'> <FaEdit/> </Link> 
-
-        <Link to={`/seller/dashboard/add-banner/${d._id}`} className='p-[6px] bg-sky-500 rounded hover:shadow-lg hover:shadow-yellow-500/50'> <LuImageMinus /> </Link> 
-
-        <Link className='p-[6px] bg-green-500 rounded hover:shadow-lg hover:shadow-green-500/50'> <FaEye/> </Link>
-
-        <Link to={`/seller/dashboard/delete-product/${d._id}`}className='p-[6px] bg-red-500 rounded hover:shadow-lg hover:shadow-red-500/50'> <FaTrash/> </Link> 
-        </div>
-        
-        </td>
-            </tr> )
-            }
-
-            
-        </tbody> 
-    </table> 
-    </div>  
-
-            {
-                totalProduct <= parPage ? "" : <div className='w-full flex justify-end mt-4 bottom-4 right-4'>
-                <Pagination 
-                    pageNumber = {currentPage}
-                    setPageNumber = {setCurrentPage}
-                    totalItem = {50}
-                    parPage = {parPage}
-                    showItem = {3}
-                />
+        <div className='px-4 md:px-6 py-6'>
+            {/* Header */}
+            <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6'>
+                <div className='flex items-center gap-3'>
+                    <div className='w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center'>
+                        <FaBox className='text-violet-600 text-xl' />
+                    </div>
+                    <div>
+                        <h1 className='text-2xl font-bold text-gray-800'>All Products</h1>
+                        <p className='text-gray-500 text-sm'>{totalProduct} products in your inventory</p>
+                    </div>
                 </div>
-            }
+                <Link
+                    to='/seller/dashboard/add-product'
+                    className='inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-xl hover:from-cyan-600 hover:to-cyan-700 transition-all shadow-lg shadow-cyan-500/30 font-medium'
+                >
+                    <FaPlus className='text-sm' />
+                    Add Product
+                </Link>
+            </div>
 
+            {/* Main Card */}
+            <div className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
+                {/* Search & Filter Bar */}
+                <div className='p-4 border-b border-gray-100'>
+                    <div className='flex flex-col sm:flex-row gap-4 items-center justify-between'>
+                        <div className='relative w-full sm:w-80'>
+                            <FaSearch className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400' />
+                            <input
+                                type="text"
+                                placeholder='Search products...'
+                                value={searchValue}
+                                onChange={(e) => setSearchValue(e.target.value)}
+                                className='w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all'
+                            />
+                        </div>
+                        <div className='flex items-center gap-3'>
+                            <span className='text-sm text-gray-500'>Show:</span>
+                            <select
+                                value={parPage}
+                                onChange={(e) => setParPage(e.target.value)}
+                                className='px-3 py-2 border border-gray-200 rounded-lg focus:border-cyan-500 outline-none text-sm'
+                            >
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-           
-         </div>
+                {/* Table */}
+                <div className='overflow-x-auto'>
+                    <table className='w-full'>
+                        <thead className='bg-gray-50'>
+                            <tr>
+                                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>#</th>
+                                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Product</th>
+                                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Category</th>
+                                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Brand</th>
+                                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Price</th>
+                                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Discount</th>
+                                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Stock</th>
+                                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className='divide-y divide-gray-100'>
+                            {products.map((d, i) => (
+                                <tr key={i} className='hover:bg-gray-50 transition-colors'>
+                                    <td className='px-4 py-3 whitespace-nowrap'>
+                                        <span className='text-sm text-gray-500'>{(currentPage - 1) * parPage + i + 1}</span>
+                                    </td>
+                                    <td className='px-4 py-3'>
+                                        <div className='flex items-center gap-3'>
+                                            <div className='w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0'>
+                                                <img className='w-full h-full object-cover' src={d.images[0]} alt={d.name} />
+                                            </div>
+                                            <div className='min-w-0'>
+                                                <p className='text-sm font-medium text-gray-800 truncate max-w-[200px]'>{d.name}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className='px-4 py-3 whitespace-nowrap'>
+                                        <span className='inline-flex px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700'>
+                                            {d.category}
+                                        </span>
+                                    </td>
+                                    <td className='px-4 py-3 whitespace-nowrap'>
+                                        <span className='text-sm text-gray-600'>{d.brand}</span>
+                                    </td>
+                                    <td className='px-4 py-3 whitespace-nowrap'>
+                                        <span className='text-sm font-semibold text-gray-800'>${d.price}</span>
+                                    </td>
+                                    <td className='px-4 py-3 whitespace-nowrap'>
+                                        {d.discount === 0 ? (
+                                            <span className='text-sm text-gray-400'>-</span>
+                                        ) : (
+                                            <span className='inline-flex px-2.5 py-1 rounded-lg text-xs font-medium bg-red-100 text-red-700'>
+                                                {d.discount}% OFF
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className='px-4 py-3 whitespace-nowrap'>
+                                        <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-medium ${d.stock > 10
+                                                ? 'bg-green-100 text-green-700'
+                                                : d.stock > 0
+                                                    ? 'bg-amber-100 text-amber-700'
+                                                    : 'bg-red-100 text-red-700'
+                                            }`}>
+                                            {d.stock > 0 ? `${d.stock} in stock` : 'Out of stock'}
+                                        </span>
+                                    </td>
+                                    <td className='px-4 py-3 whitespace-nowrap'>
+                                        <div className='flex items-center gap-2'>
+                                            <Link
+                                                to={`/seller/dashboard/edit-product/${d._id}`}
+                                                className='p-2 text-amber-600 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors'
+                                                title='Edit'
+                                            >
+                                                <FaEdit className='text-sm' />
+                                            </Link>
+                                            <Link
+                                                to={`/seller/dashboard/add-banner/${d._id}`}
+                                                className='p-2 text-cyan-600 bg-cyan-50 rounded-lg hover:bg-cyan-100 transition-colors'
+                                                title='Add Banner'
+                                            >
+                                                <FaImage className='text-sm' />
+                                            </Link>
+                                            <Link
+                                                to={`/seller/dashboard/delete-product/${d._id}`}
+                                                className='p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors'
+                                                title='Delete'
+                                            >
+                                                <FaTrash className='text-sm' />
+                                            </Link>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+
+                    {products.length === 0 && (
+                        <div className='text-center py-12'>
+                            <div className='w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+                                <FaBox className='text-2xl text-gray-400' />
+                            </div>
+                            <p className='text-gray-500'>No products found</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Pagination */}
+                {totalProduct > parPage && (
+                    <div className='p-4 border-t border-gray-100 flex justify-end'>
+                        <Pagination
+                            pageNumber={currentPage}
+                            setPageNumber={setCurrentPage}
+                            totalItem={totalProduct}
+                            parPage={parPage}
+                            showItem={3}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
