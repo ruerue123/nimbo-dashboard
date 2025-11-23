@@ -1,82 +1,186 @@
-import React, { useState } from 'react'; 
-import Search from '../components/Search';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Pagination from '../Pagination'; 
-import { FaEdit, FaEye, FaTrash } from 'react-icons/fa'; 
+import Pagination from '../Pagination';
+import { FaEdit, FaEye, FaTrash, FaTag, FaSearch, FaPercent } from 'react-icons/fa';
+import { useDispatch, useSelector } from 'react-redux';
+import { get_products } from '../../store/Reducers/productReducer';
 
 const DiscountProducts = () => {
+    const dispatch = useDispatch()
+    const { products, totalProduct } = useSelector(state => state.product)
+    const { userInfo } = useSelector(state => state.auth)
 
     const [currentPage, setCurrentPage] = useState(1)
     const [searchValue, setSearchValue] = useState('')
-    const [parPage, setParPage] = useState(5)
+    const [parPage, setParPage] = useState(10)
+
+    // Filter products with discounts
+    const discountProducts = products.filter(p => p.discount > 0)
+
+    useEffect(() => {
+        const obj = {
+            parPage: parseInt(parPage),
+            page: parseInt(currentPage),
+            searchValue,
+            sellerId: userInfo._id
+        }
+        dispatch(get_products(obj))
+    }, [searchValue, currentPage, parPage, userInfo._id, dispatch])
+
+    const formatPrice = (price) => Number(price).toFixed(2)
 
     return (
-        <div className='px-2 lg:px-7 pt-5'>
-            <h1 className='text-[#000000] font-semibold text-lg mb-3'>Discount Products</h1>
+        <div className='px-4 md:px-6 py-6'>
+            {/* Header */}
+            <div className='flex items-center gap-3 mb-6'>
+                <div className='w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center'>
+                    <FaPercent className='text-orange-600 text-xl' />
+                </div>
+                <div>
+                    <h1 className='text-2xl font-bold text-gray-800'>Discount Products</h1>
+                    <p className='text-gray-500 text-sm'>{discountProducts.length} products on sale</p>
+                </div>
+            </div>
 
-         <div className='w-full p-4 bg-[#6a5fdf] rounded-md'> 
-         <Search setParPage={setParPage} setSearchValue={setSearchValue} searchValue={searchValue} />
-
-
-         <div className='relative overflow-x-auto mt-5'>
-    <table className='w-full text-sm text-left text-[#d0d2d6]'>
-        <thead className='text-sm text-[#d0d2d6] uppercase border-b border-slate-700'>
-        <tr>
-            <th scope='col' className='py-3 px-4'>No</th>
-            <th scope='col' className='py-3 px-4'>Image</th>
-            <th scope='col' className='py-3 px-4'>Name</th>
-            <th scope='col' className='py-3 px-4'>Category</th>
-            <th scope='col' className='py-3 px-4'>Brand</th>
-            <th scope='col' className='py-3 px-4'>Price</th>
-            <th scope='col' className='py-3 px-4'>Discount</th>
-            <th scope='col' className='py-3 px-4'>Stock</th>
-            <th scope='col' className='py-3 px-4'>Action</th> 
-        </tr>
-        </thead>
-
-        <tbody>
-            {
-                [1,2,3,4,5].map((d, i) => <tr key={i}>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>{d}</td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>
-                    <img className='w-[45px] h-[45px]' src={`http://localhost:3000/images/category/${d}.jpg`} alt="" />
-                </td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>Men Full Sleeve</td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>Tshirt</td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>Veirdo </td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>$232</td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>10%</td>
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>20</td>
-                 
-                <td scope='row' className='py-1 px-4 font-medium whitespace-nowrap'>
-                    <div className='flex justify-start items-center gap-4'>
-                    <Link className='p-[6px] bg-yellow-500 rounded hover:shadow-lg hover:shadow-yellow-500/50'> <FaEdit/> </Link> 
-                    <Link className='p-[6px] bg-green-500 rounded hover:shadow-lg hover:shadow-green-500/50'> <FaEye/> </Link>
-                    <Link className='p-[6px] bg-red-500 rounded hover:shadow-lg hover:shadow-red-500/50'> <FaTrash/> </Link> 
+            {/* Main Card */}
+            <div className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
+                {/* Search & Filter Bar */}
+                <div className='p-4 border-b border-gray-100'>
+                    <div className='flex flex-col sm:flex-row gap-4 items-center justify-between'>
+                        <div className='relative w-full sm:w-80'>
+                            <FaSearch className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400' />
+                            <input
+                                type="text"
+                                placeholder='Search discount products...'
+                                value={searchValue}
+                                onChange={(e) => setSearchValue(e.target.value)}
+                                className='w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all'
+                            />
+                        </div>
+                        <div className='flex items-center gap-3'>
+                            <span className='text-sm text-gray-500'>Show:</span>
+                            <select
+                                value={parPage}
+                                onChange={(e) => setParPage(e.target.value)}
+                                className='px-3 py-2 border border-gray-200 rounded-lg focus:border-cyan-500 outline-none text-sm'
+                            >
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
                     </div>
-                    
-                    </td>
-            </tr> )
-            }
+                </div>
 
-            
-        </tbody> 
-    </table> 
-    </div>  
+                {/* Table */}
+                <div className='overflow-x-auto'>
+                    <table className='w-full'>
+                        <thead className='bg-gray-50'>
+                            <tr>
+                                <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>No</th>
+                                <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Product</th>
+                                <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Category</th>
+                                <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Price</th>
+                                <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Discount</th>
+                                <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Sale Price</th>
+                                <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Stock</th>
+                                <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody className='divide-y divide-gray-100'>
+                            {discountProducts.map((d, i) => (
+                                <tr key={i} className='hover:bg-gray-50 transition-colors'>
+                                    <td className='px-6 py-4 whitespace-nowrap'>
+                                        <span className='text-sm font-medium text-gray-800'>{i + 1}</span>
+                                    </td>
+                                    <td className='px-6 py-4 whitespace-nowrap'>
+                                        <div className='flex items-center gap-3'>
+                                            <div className='w-12 h-12 bg-gray-100 rounded-lg overflow-hidden'>
+                                                <img
+                                                    className='w-full h-full object-cover'
+                                                    src={d.images[0]}
+                                                    alt={d.name}
+                                                />
+                                            </div>
+                                            <div>
+                                                <p className='text-sm font-medium text-gray-800 truncate max-w-[200px]'>{d.name}</p>
+                                                <p className='text-xs text-gray-500'>{d.brand}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className='px-6 py-4 whitespace-nowrap'>
+                                        <span className='text-sm text-gray-600'>{d.category}</span>
+                                    </td>
+                                    <td className='px-6 py-4 whitespace-nowrap'>
+                                        <span className='text-sm text-gray-400 line-through'>${formatPrice(d.price)}</span>
+                                    </td>
+                                    <td className='px-6 py-4 whitespace-nowrap'>
+                                        <span className='inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700'>
+                                            <FaTag className='text-xs' />
+                                            {d.discount}% OFF
+                                        </span>
+                                    </td>
+                                    <td className='px-6 py-4 whitespace-nowrap'>
+                                        <span className='text-sm font-semibold text-emerald-600'>
+                                            ${formatPrice(d.price - (d.price * d.discount / 100))}
+                                        </span>
+                                    </td>
+                                    <td className='px-6 py-4 whitespace-nowrap'>
+                                        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${d.stock > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                                            {d.stock > 0 ? `${d.stock} in stock` : 'Out of stock'}
+                                        </span>
+                                    </td>
+                                    <td className='px-6 py-4 whitespace-nowrap'>
+                                        <div className='flex items-center gap-2'>
+                                            <Link
+                                                to={`/seller/dashboard/edit-product/${d._id}`}
+                                                className='p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors'
+                                            >
+                                                <FaEdit className='text-sm' />
+                                            </Link>
+                                            <Link
+                                                to={`/seller/dashboard/product/${d._id}`}
+                                                className='p-2 bg-cyan-50 text-cyan-600 rounded-lg hover:bg-cyan-100 transition-colors'
+                                            >
+                                                <FaEye className='text-sm' />
+                                            </Link>
+                                            <button
+                                                className='p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors'
+                                            >
+                                                <FaTrash className='text-sm' />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
 
-    <div className='w-full flex justify-end mt-4 bottom-4 right-4'>
-        <Pagination 
-            pageNumber = {currentPage}
-            setPageNumber = {setCurrentPage}
-            totalItem = {50}
-            parPage = {parPage}
-            showItem = {3}
-        />
-        </div>
+                    {discountProducts.length === 0 && (
+                        <div className='text-center py-12'>
+                            <div className='w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+                                <FaPercent className='text-2xl text-gray-400' />
+                            </div>
+                            <p className='text-gray-500 mb-2'>No discount products yet</p>
+                            <p className='text-sm text-gray-400'>Add discounts to your products to see them here</p>
+                        </div>
+                    )}
+                </div>
 
-
-           
-         </div>
+                {/* Pagination */}
+                {totalProduct > parPage && (
+                    <div className='p-4 border-t border-gray-100 flex justify-end'>
+                        <Pagination
+                            pageNumber={currentPage}
+                            setPageNumber={setCurrentPage}
+                            totalItem={totalProduct}
+                            parPage={parPage}
+                            showItem={3}
+                        />
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
