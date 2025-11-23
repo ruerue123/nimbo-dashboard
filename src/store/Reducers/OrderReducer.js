@@ -154,6 +154,12 @@ export const OrderReducer = createSlice({
             if (payload.order) {
                 state.order = payload.order;
             }
+            // Store customerId and customerOrderId for socket emit
+            state.lastDeliveryUpdate = {
+                customerId: payload.customerId,
+                customerOrderId: payload.customerOrderId,
+                deliveryDetails: payload.order?.deliveryDetails
+            };
         })
 
     }

@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { get_seller_order, messageClear, seller_order_status_update, update_delivery_details } from '../../store/Reducers/OrderReducer';
 import toast from 'react-hot-toast';
 import { FaBox, FaTruck, FaCheckCircle, FaTimesCircle, FaSpinner, FaUser, FaMapMarkerAlt, FaSave } from 'react-icons/fa';
+import { socket } from '../../utils/utils';
 
 const OrderDetails = () => {
     const { orderId } = useParams()
     const dispatch = useDispatch()
     const [status, setStatus] = useState('')
 
-    const { order, errorMessage, successMessage } = useSelector(state => state.order)
+    const { order, errorMessage, successMessage, lastDeliveryUpdate } = useSelector(state => state.order)
 
     // Delivery details form state
     const [deliveryDetails, setDeliveryDetails] = useState({
@@ -67,6 +68,18 @@ const OrderDetails = () => {
             dispatch(messageClear())
         }
     }, [successMessage, errorMessage, dispatch])
+
+    // Emit socket event when delivery details are updated successfully
+    useEffect(() => {
+        if (lastDeliveryUpdate?.customerId && lastDeliveryUpdate?.deliveryDetails) {
+            console.log('📦 Emitting delivery details update:', lastDeliveryUpdate)
+            socket.emit('delivery_details_updated', {
+                customerId: lastDeliveryUpdate.customerId,
+                orderId: lastDeliveryUpdate.customerOrderId,
+                deliveryDetails: lastDeliveryUpdate.deliveryDetails
+            })
+        }
+    }, [lastDeliveryUpdate])
 
     const formatPrice = (price) => {
         return Number(price).toFixed(2)

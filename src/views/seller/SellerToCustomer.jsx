@@ -41,13 +41,16 @@ const SellerToCustomer = () => {
 
     useEffect(() => {
         if (successMessage) {
-            socket.emit('send_seller_message', messages[messages.length - 1])
+            const lastMessage = messages[messages.length - 1]
+            console.log('📤 Emitting seller message:', lastMessage)
+            socket.emit('send_seller_message', lastMessage)
             dispatch(messageClear())
         }
     }, [successMessage, messages, dispatch])
 
     useEffect(() => {
         socket.on('customer_message', msg => {
+            console.log('📨 Received customer message:', msg)
             setReceverMessage(msg)
         })
         return () => socket.off('customer_message')
