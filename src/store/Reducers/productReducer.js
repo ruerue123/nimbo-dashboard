@@ -74,10 +74,20 @@ export const get_product = createAsyncThunk(
 export const update_product = createAsyncThunk(
     'product/update_product',
     async( product ,{rejectWithValue, fulfillWithValue}) => {
-        
+
         try {
-             
-            const {data} = await api.post('/product-update', product,{withCredentials: true}) 
+            // Convert to FormData for formidable
+            const formData = new FormData()
+            formData.append('productId', product.productId)
+            formData.append('name', product.name)
+            formData.append('category', product.category)
+            formData.append('description', product.description)
+            formData.append('stock', product.stock)
+            formData.append('price', product.price)
+            formData.append('discount', product.discount)
+            formData.append('brand', product.brand)
+
+            const {data} = await api.post('/product-update', formData, {withCredentials: true})
             console.log(data)
             return fulfillWithValue(data)
         } catch (error) {
