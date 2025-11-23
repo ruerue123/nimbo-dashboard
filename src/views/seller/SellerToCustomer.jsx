@@ -1,200 +1,280 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FaList } from 'react-icons/fa6';
+import { FaList, FaUser, FaPaperPlane, FaComments, FaCircle } from 'react-icons/fa';
 import { IoMdClose } from "react-icons/io";
 import { useDispatch, useSelector } from 'react-redux';
-import { get_customer_message, get_customers,messageClear,send_message,updateMessage } from '../../store/Reducers/chatReducer';
+import { get_customer_message, get_customers, messageClear, send_message, updateMessage } from '../../store/Reducers/chatReducer';
 import { Link, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
 import { socket } from '../../utils/utils';
 
 const SellerToCustomer = () => {
-
     const scrollRef = useRef()
-
-    const [show, setShow] = useState(false) 
-    const sellerId = 65
-    const {userInfo } = useSelector(state => state.auth)
-    const {customers,messages,currentCustomer,successMessage } = useSelector(state => state.chat)
-    const [text,setText] = useState('')
-    const [receverMessage,setReceverMessage] = useState('')
-
-    const { customerId } =  useParams()
-
+    const [show, setShow] = useState(false)
+    const { userInfo } = useSelector(state => state.auth)
+    const { customers, messages, currentCustomer, successMessage } = useSelector(state => state.chat)
+    const [text, setText] = useState('')
+    const [receverMessage, setReceverMessage] = useState('')
+    const { customerId } = useParams()
     const dispatch = useDispatch()
 
     useEffect(() => {
         dispatch(get_customers(userInfo._id))
-    },[])
+    }, [userInfo._id, dispatch])
 
     useEffect(() => {
         if (customerId) {
             dispatch(get_customer_message(customerId))
         }
-    },[customerId])
+    }, [customerId, dispatch])
 
     const send = (e) => {
-        e.preventDefault() 
-            dispatch(send_message({
-                senderId: userInfo._id, 
-                receverId: customerId,
-                text,
-                name: userInfo?.shopInfo?.shopName 
-            }))
-            setText('') 
+        e.preventDefault()
+        if (!text.trim()) return
+        dispatch(send_message({
+            senderId: userInfo._id,
+            receverId: customerId,
+            text,
+            name: userInfo?.shopInfo?.shopName
+        }))
+        setText('')
     }
- 
+
     useEffect(() => {
         if (successMessage) {
-            socket.emit('send_seller_message',messages[messages.length - 1])
+            socket.emit('send_seller_message', messages[messages.length - 1])
             dispatch(messageClear())
         }
-    },[successMessage])
+    }, [successMessage, messages, dispatch])
 
     useEffect(() => {
         socket.on('customer_message', msg => {
             setReceverMessage(msg)
         })
-         
-    },[])
+        return () => socket.off('customer_message')
+    }, [])
 
     useEffect(() => {
         if (receverMessage) {
             if (customerId === receverMessage.senderId && userInfo._id === receverMessage.receverId) {
                 dispatch(updateMessage(receverMessage))
             } else {
-                toast.success(receverMessage.senderName + " " + "Send A message")
+                toast.success(receverMessage.senderName + " sent a message")
                 dispatch(messageClear())
             }
         }
-
-    },[receverMessage])
+    }, [receverMessage, customerId, userInfo._id, dispatch])
 
     useEffect(() => {
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth'})
-    },[messages])
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [messages])
 
-
-    return (
-    <div className='px-2 lg:px-7 py-5'>
-        <div className='w-full bg-[#6a5fdf] px-4 py-4 rounded-md h-[calc(100vh-140px)]'>
-        <div className='flex w-full h-full relative'>
-    
-    <div className={`w-[280px] h-full absolute z-10 ${show ? '-left-[16px]' : '-left-[336px]'} md:left-0 md:relative transition-all `}>
-        <div className='w-full h-[calc(100vh-177px)] bg-[#9e97e9] md:bg-transparent overflow-y-auto'>
-        <div className='flex text-xl justify-between items-center p-4 md:p-0 md:px-3 md:pb-3 text-white'>
-        <h2>Customers</h2>
-        <span onClick={() => setShow(!show)} className='block cursor-pointer md:hidden'><IoMdClose /> </span>
-       </div>
-
-
-        {
-            customers.map((c,i) => <Link key={i} to={`/seller/dashboard/chat-customer/${c.fdId}`} className={`h-[60px] flex justify-start gap-2 items-center text-white px-2 py-2 rounded-md cursor-pointer bg-[#8288ed] `}>
-            <div className='relative'>
-             <img className='w-[38px] h-[38px] border-white border-2 max-w-[38px] p-[2px] rounded-full' src="http://localhost:3001/images/admin.jpg" alt="" />
-             <div className='w-[10px] h-[10px] bg-green-500 rounded-full absolute right-0 bottom-0'></div>
-            </div>
-    
-            <div className='flex justify-center items-start flex-col w-full'>
-                <div className='flex justify-between items-center w-full'>
-                    <h2 className='text-base font-semibold'>{c.name}</h2>
-    
-                </div> 
-            </div> 
-           </Link>  )
-        }
-       
-
-
-      
-
- 
- 
-
-        </div> 
-    </div>
-
-    <div className='w-full md:w-[calc(100%-200px)] md:pl-4'>
-        <div className='flex justify-between items-center'>
-            {
-                sellerId && <div className='flex justify-start items-center gap-3'>
-           <div className='relative'>
-         <img className='w-[45px] h-[45px] border-green-500 border-2 max-w-[45px] p-[2px] rounded-full' src="http://localhost:3001/images/demo.jpg" alt="" />
-         <div className='w-[10px] h-[10px] bg-green-500 rounded-full absolute right-0 bottom-0'></div>
-        </div>
-        <h2 className='text-base text-white font-semibold'>{currentCustomer.name}</h2>
-
-                </div>
-            } 
-
-            <div onClick={()=> setShow(!show)} className='w-[35px] flex md:hidden h-[35px] rounded-sm bg-blue-500 shadow-lg hover:shadow-blue-500/50 justify-center cursor-pointer items-center text-white'>
-                <span><FaList/> </span>
-            </div> 
-        </div>
-
-        <div className='py-4'>
-            <div className='bg-[#475569] h-[calc(100vh-290px)] rounded-md p-3 overflow-y-auto'>
-           
-    {
-        customerId ? messages.map((m,i) => {
-            if (m.senderId === customerId) {
-                return (
-                    <div key={i} ref={scrollRef} className='w-full flex justify-start items-center'>
-                    <div className='flex justify-start items-start gap-2 md:px-3 py-2 max-w-full lg:max-w-[85%]'>
-                        <div>
-                            <img className='w-[38px] h-[38px] border-2 border-white rounded-full max-w-[38px] p-[3px]' src="http://localhost:3001/images/demo.jpg" alt="" />
-                        </div>
-                        <div className='flex justify-center items-start flex-col w-full bg-blue-500 shadow-lg shadow-blue-500/50 text-white py-1 px-2 rounded-sm'>
-                        <span>{m.message} </span>
-                        </div> 
-                    </div> 
-                </div>
-                )
-            } else {
-                return ( 
-                    <div key={i} ref={scrollRef} className='w-full flex justify-end items-center'>
-                    <div className='flex justify-start items-start gap-2 md:px-3 py-2 max-w-full lg:max-w-[85%]'>
-                        
-                        <div className='flex justify-center items-start flex-col w-full bg-red-500 shadow-lg shadow-red-500/50 text-white py-1 px-2 rounded-sm'>
-                        <span>{m.message} </span>
-                        </div> 
-                        <div>
-                            <img className='w-[38px] h-[38px] border-2 border-white rounded-full max-w-[38px] p-[3px]' src="http://localhost:3001/images/admin.jpg" alt="" />
-                        </div>
-
-                    </div> 
-                </div>
-                )
-            }
-        }) : <div className='w-full h-full flex justify-center items-center text-white gap-2 flex-col'>
-            <span>Select Customer </span>
-        </div>
+    // Format message time
+    const formatTime = (date) => {
+        if (!date) return ''
+        const d = new Date(date)
+        return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
     }
 
- 
+    // Format date for message grouping
+    const formatDate = (date) => {
+        if (!date) return ''
+        const d = new Date(date)
+        const today = new Date()
+        const yesterday = new Date(today)
+        yesterday.setDate(yesterday.getDate() - 1)
 
+        if (d.toDateString() === today.toDateString()) return 'Today'
+        if (d.toDateString() === yesterday.toDateString()) return 'Yesterday'
+        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    }
 
-             
+    // Group messages by date
+    const groupMessagesByDate = () => {
+        const groups = {}
+        messages.forEach(m => {
+            const date = formatDate(m.createdAt)
+            if (!groups[date]) groups[date] = []
+            groups[date].push(m)
+        })
+        return groups
+    }
 
-            </div> 
+    const messageGroups = groupMessagesByDate()
+
+    // Sort customers by most recent message (if they have lastMessage timestamp)
+    const sortedCustomers = [...customers].sort((a, b) => {
+        const dateA = a.lastMessageAt ? new Date(a.lastMessageAt) : new Date(0)
+        const dateB = b.lastMessageAt ? new Date(b.lastMessageAt) : new Date(0)
+        return dateB - dateA
+    })
+
+    return (
+        <div className='px-4 md:px-6 py-6'>
+            {/* Header */}
+            <div className='flex items-center gap-3 mb-6'>
+                <div className='w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center'>
+                    <FaComments className='text-purple-600 text-xl' />
+                </div>
+                <div>
+                    <h1 className='text-2xl font-bold text-gray-800'>Customer Chat</h1>
+                    <p className='text-gray-500 text-sm'>{customers.length} conversations</p>
+                </div>
+            </div>
+
+            {/* Chat Container */}
+            <div className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-[calc(100vh-200px)]'>
+                <div className='flex h-full relative'>
+                    {/* Customer List Sidebar */}
+                    <div className={`w-[300px] h-full absolute z-10 ${show ? 'left-0' : '-left-[320px]'} md:left-0 md:relative transition-all border-r border-gray-100 bg-white`}>
+                        <div className='p-4 border-b border-gray-100 flex items-center justify-between'>
+                            <h2 className='font-semibold text-gray-800'>Customers</h2>
+                            <button onClick={() => setShow(false)} className='md:hidden w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-lg'>
+                                <IoMdClose className='text-xl' />
+                            </button>
+                        </div>
+
+                        <div className='overflow-y-auto h-[calc(100%-65px)]'>
+                            {sortedCustomers.length === 0 ? (
+                                <div className='flex flex-col items-center justify-center h-full text-gray-400 p-4'>
+                                    <FaUser className='text-3xl mb-2' />
+                                    <p className='text-sm'>No conversations yet</p>
+                                </div>
+                            ) : (
+                                sortedCustomers.map((c, i) => (
+                                    <Link
+                                        key={i}
+                                        to={`/seller/dashboard/chat-customer/${c.fdId}`}
+                                        onClick={() => setShow(false)}
+                                        className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 ${customerId === c.fdId ? 'bg-cyan-50 border-l-4 border-l-cyan-500' : ''}`}
+                                    >
+                                        <div className='relative'>
+                                            <div className='w-10 h-10 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full flex items-center justify-center text-white font-semibold'>
+                                                {c.name?.charAt(0).toUpperCase() || 'C'}
+                                            </div>
+                                            <FaCircle className='absolute -bottom-0.5 -right-0.5 text-green-500 text-[10px] bg-white rounded-full' />
+                                        </div>
+                                        <div className='flex-1 min-w-0'>
+                                            <h3 className='font-medium text-gray-800 text-sm truncate'>{c.name}</h3>
+                                            {c.lastMessage && (
+                                                <p className='text-xs text-gray-500 truncate'>{c.lastMessage}</p>
+                                            )}
+                                        </div>
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Chat Area */}
+                    <div className='flex-1 flex flex-col'>
+                        {/* Chat Header */}
+                        <div className='p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50'>
+                            {customerId ? (
+                                <div className='flex items-center gap-3'>
+                                    <div className='w-10 h-10 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full flex items-center justify-center text-white font-semibold'>
+                                        {currentCustomer.name?.charAt(0).toUpperCase() || 'C'}
+                                    </div>
+                                    <div>
+                                        <h3 className='font-semibold text-gray-800'>{currentCustomer.name}</h3>
+                                        <p className='text-xs text-green-500 flex items-center gap-1'>
+                                            <FaCircle className='text-[8px]' /> Online
+                                        </p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className='text-gray-500 text-sm'>Select a customer to start chatting</div>
+                            )}
+
+                            <button
+                                onClick={() => setShow(true)}
+                                className='md:hidden w-10 h-10 bg-cyan-500 rounded-xl flex items-center justify-center text-white shadow-lg'
+                            >
+                                <FaList />
+                            </button>
+                        </div>
+
+                        {/* Messages Area */}
+                        <div className='flex-1 overflow-y-auto p-4 bg-gray-50'>
+                            {customerId ? (
+                                Object.keys(messageGroups).length > 0 ? (
+                                    Object.entries(messageGroups).map(([date, msgs]) => (
+                                        <div key={date}>
+                                            {/* Date Separator */}
+                                            <div className='flex items-center justify-center my-4'>
+                                                <div className='bg-gray-200 px-3 py-1 rounded-full text-xs text-gray-600'>
+                                                    {date}
+                                                </div>
+                                            </div>
+
+                                            {/* Messages for this date */}
+                                            {msgs.map((m, i) => {
+                                                const isCustomer = m.senderId === customerId
+                                                return (
+                                                    <div
+                                                        key={i}
+                                                        ref={i === msgs.length - 1 ? scrollRef : null}
+                                                        className={`flex mb-3 ${isCustomer ? 'justify-start' : 'justify-end'}`}
+                                                    >
+                                                        <div className={`flex items-end gap-2 max-w-[75%] ${isCustomer ? '' : 'flex-row-reverse'}`}>
+                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0 ${isCustomer ? 'bg-gradient-to-br from-cyan-400 to-cyan-600' : 'bg-gradient-to-br from-purple-400 to-purple-600'}`}>
+                                                                {isCustomer ? currentCustomer.name?.charAt(0).toUpperCase() || 'C' : 'S'}
+                                                            </div>
+                                                            <div>
+                                                                <div className={`px-4 py-2 rounded-2xl ${isCustomer ? 'bg-white border border-gray-200 rounded-bl-none' : 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-br-none'}`}>
+                                                                    <p className='text-sm'>{m.message}</p>
+                                                                </div>
+                                                                <p className={`text-[10px] text-gray-400 mt-1 ${isCustomer ? 'text-left' : 'text-right'}`}>
+                                                                    {formatTime(m.createdAt)}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className='flex flex-col items-center justify-center h-full text-gray-400'>
+                                        <FaComments className='text-5xl mb-3' />
+                                        <p>No messages yet</p>
+                                        <p className='text-sm'>Start the conversation!</p>
+                                    </div>
+                                )
+                            ) : (
+                                <div className='flex flex-col items-center justify-center h-full text-gray-400'>
+                                    <FaComments className='text-5xl mb-3' />
+                                    <p className='font-medium'>Select a Customer</p>
+                                    <p className='text-sm'>Choose from your customer list to start chatting</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Message Input */}
+                        {customerId && (
+                            <form onSubmit={send} className='p-4 border-t border-gray-100 bg-white'>
+                                <div className='flex gap-3'>
+                                    <input
+                                        value={text}
+                                        onChange={(e) => setText(e.target.value)}
+                                        className='flex-1 px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl focus:border-cyan-500 focus:bg-white outline-none transition-all text-sm'
+                                        type="text"
+                                        placeholder='Type your message...'
+                                    />
+                                    <button
+                                        type='submit'
+                                        disabled={!text.trim()}
+                                        className='px-5 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-xl flex items-center gap-2 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed'
+                                    >
+                                        <FaPaperPlane className='text-sm' />
+                                        <span className='hidden sm:inline'>Send</span>
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <form onSubmit={send} className='flex gap-3'>
-            <input value={text} onChange={(e) => setText(e.target.value)} className='w-full flex justify-between px-2 border border-slate-700 items-center py-[5px] focus:border-blue-500 rounded-md outline-none bg-transparent text-[#d0d2d6]' type="text" placeholder='Input Your Message' />
-            <button className='shadow-lg bg-[#06b6d4] hover:shadow-cyan-500/50 text-semibold w-[75px] h-[35px] rounded-md text-white flex justify-center items-center'>Send</button>
-
-        </form>
-
-
-
-
-    </div>  
-
-        </div> 
-
-        </div>
-        
-    </div>
     );
 };
 

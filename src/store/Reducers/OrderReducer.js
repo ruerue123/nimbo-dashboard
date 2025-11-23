@@ -72,15 +72,28 @@ export const get_admin_orders = createAsyncThunk(
 
   export const seller_order_status_update = createAsyncThunk(
     'orders/seller_order_status_update',
-    async( {orderId,info} ,{rejectWithValue, fulfillWithValue}) => { 
-        try { 
-            const {data} = await api.put(`/seller/order-status/update/${orderId}`,info,{withCredentials: true})  
+    async( {orderId,info} ,{rejectWithValue, fulfillWithValue}) => {
+        try {
+            const {data} = await api.put(`/seller/order-status/update/${orderId}`,info,{withCredentials: true})
             return fulfillWithValue(data)
-        } catch (error) { 
+        } catch (error) {
             return rejectWithValue(error.response.data)
         }
     }
-) 
+)
+  // End Method
+
+  export const update_delivery_details = createAsyncThunk(
+    'orders/update_delivery_details',
+    async( {orderId, deliveryDetails} ,{rejectWithValue, fulfillWithValue}) => {
+        try {
+            const {data} = await api.put(`/seller/order-delivery-details/${orderId}`, { deliveryDetails }, {withCredentials: true})
+            return fulfillWithValue(data)
+        } catch (error) {
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
   // End Method  
 
  
@@ -127,12 +140,18 @@ export const OrderReducer = createSlice({
         })
 
         .addCase(seller_order_status_update.rejected, (state, { payload }) => {
-            state.errorMessage = payload.message; 
+            state.errorMessage = payload.message;
         })
         .addCase(seller_order_status_update.fulfilled, (state, { payload }) => {
-            state.successMessage = payload.message; 
+            state.successMessage = payload.message;
         })
- 
+
+        .addCase(update_delivery_details.rejected, (state, { payload }) => {
+            state.errorMessage = payload.message;
+        })
+        .addCase(update_delivery_details.fulfilled, (state, { payload }) => {
+            state.successMessage = payload.message;
+        })
 
     }
 

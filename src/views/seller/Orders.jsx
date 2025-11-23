@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Pagination from '../Pagination';
-import { FaEye, FaShoppingBag, FaSearch } from 'react-icons/fa';
+import { FaEye, FaShoppingBag, FaSearch, FaUser } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { get_seller_orders } from '../../store/Reducers/OrderReducer';
 
@@ -120,6 +120,7 @@ const Orders = () => {
                         <thead className='bg-gray-50'>
                             <tr>
                                 <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Order ID</th>
+                                <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Customer</th>
                                 <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Price</th>
                                 <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Payment</th>
                                 <th className='px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider'>Status</th>
@@ -132,6 +133,14 @@ const Orders = () => {
                                 <tr key={i} className='hover:bg-gray-50 transition-colors'>
                                     <td className='px-6 py-4 whitespace-nowrap'>
                                         <span className='text-sm font-medium text-gray-800'>#{d._id.slice(-8)}</span>
+                                    </td>
+                                    <td className='px-6 py-4 whitespace-nowrap'>
+                                        <div className='flex items-center gap-2'>
+                                            <div className='w-7 h-7 bg-cyan-100 rounded-full flex items-center justify-center flex-shrink-0'>
+                                                <FaUser className='text-cyan-600 text-xs' />
+                                            </div>
+                                            <span className='text-sm text-gray-800'>{d.customerName || d.shippingInfo?.name || 'N/A'}</span>
+                                        </div>
                                     </td>
                                     <td className='px-6 py-4 whitespace-nowrap'>
                                         <span className='text-sm font-semibold text-gray-800'>${formatPrice(d.price)}</span>
