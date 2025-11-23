@@ -140,6 +140,7 @@ export const productReducer = createSlice({
 
         messageClear : (state,_) => {
             state.errorMessage = ""
+            state.successMessage = ""
         }
 
     },
@@ -161,10 +162,17 @@ export const productReducer = createSlice({
         .addCase(get_products.fulfilled, (state, { payload }) => {
             state.totalProduct = payload.totalProduct;
             state.products = payload.products;
-             
+
+        })
+        .addCase(get_product.pending, (state) => {
+            state.loader = true;
+        })
+        .addCase(get_product.rejected, (state) => {
+            state.loader = false;
         })
         .addCase(get_product.fulfilled, (state, { payload }) => {
-            state.product = payload.product;  
+            state.loader = false;
+            state.product = payload.product;
         })
 
         .addCase(update_product.pending, (state, { payload }) => {
