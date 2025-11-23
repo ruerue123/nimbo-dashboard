@@ -1,146 +1,249 @@
-import React, { useEffect, useState } from 'react'; 
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { get_seller,seller_status_update,messageClear } from '../../store/Reducers/sellerReducer';
+import { useParams, Link } from 'react-router-dom';
+import { get_seller, seller_status_update, messageClear } from '../../store/Reducers/sellerReducer';
 import toast from 'react-hot-toast';
+import { FaUser, FaEnvelope, FaStore, FaMapMarkerAlt, FaCheckCircle, FaClock, FaTimesCircle, FaArrowLeft, FaCreditCard, FaUserShield } from 'react-icons/fa';
 
 const SellerDetails = () => {
-
     const dispatch = useDispatch()
-    const {seller,successMessage} = useSelector(state=> state.seller)
+    const { seller, successMessage } = useSelector(state => state.seller)
     const { sellerId } = useParams()
+
+    const [status, setStatus] = useState('')
 
     useEffect(() => {
         dispatch(get_seller(sellerId))
+    }, [sellerId, dispatch])
 
-    },[sellerId])
-
-    const [status, setStatus] =  useState('')
     const submit = (e) => {
         e.preventDefault()
-        dispatch(seller_status_update({
-            sellerId,
-            status
-        })) 
+        if (status) {
+            dispatch(seller_status_update({ sellerId, status }))
+        }
     }
 
-
-    useEffect(() => { 
+    useEffect(() => {
         if (successMessage) {
             toast.success(successMessage)
-            dispatch(messageClear())  
-        } 
-    },[successMessage])
+            dispatch(messageClear())
+        }
+    }, [successMessage, dispatch])
 
-    useEffect(() => { 
-        if (seller) { 
+    useEffect(() => {
+        if (seller) {
             setStatus(seller.status)
-        } 
-    },[seller])
+        }
+    }, [seller])
+
+    const getStatusBadge = (status) => {
+        switch (status) {
+            case 'active':
+                return <span className='inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium'><FaCheckCircle /> Active</span>;
+            case 'pending':
+                return <span className='inline-flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-medium'><FaClock /> Pending</span>;
+            case 'deactive':
+                return <span className='inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium'><FaTimesCircle /> Inactive</span>;
+            default:
+                return <span className='inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium'>{status}</span>;
+        }
+    };
+
+    const getPaymentBadge = (payment) => {
+        if (payment === 'active') {
+            return <span className='inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium'><FaCheckCircle /> Paid</span>;
+        }
+        return <span className='inline-flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-medium'><FaClock /> Pending</span>;
+    };
 
     return (
-        <div className='px-2 lg:px-7 pt-5'>
-      <h1 className='text-[20px] font-bold mb-3'>  Seller Details </h1>
-      <div className='w-full p-4 bg-[#6a5fdf] rounded-md'>
-
-        <div className='w-full flex flex-wrap text-[#d0d2d6]'>
-            <div className='w-3/12 flex justify-center items-center py-3'>
-                <div>
-                   {
-                    seller?.image ?  <img className='w-full h-[230px]' src="http://localhost:3000/images/demo.jpg" alt="" /> :
-                    <span>Image Not Uploaded </span>
-                   }
-                </div> 
-            </div>
-
-            <div className='w-4/12'>
-                <div className='px-0 md:px-5 py-2'>
-                    <div className='py-2 text-lg'>
-                        <h2>Basic Info</h2>
+        <div className='px-4 lg:px-6 py-5'>
+            {/* Header */}
+            <div className='bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-4'>
+                <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
+                    <div className='flex items-center gap-3'>
+                        <Link to='/admin/dashboard/sellers' className='w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors'>
+                            <FaArrowLeft />
+                        </Link>
+                        <div>
+                            <h1 className='text-lg font-bold text-gray-800'>Seller Details</h1>
+                            <p className='text-xs text-gray-500'>View and manage seller information</p>
+                        </div>
                     </div>
-
-    <div className='flex justify-between text-sm flex-col gap-2 p-4 bg-[#9e97e9] rounded-md'>
-        <div className='flex gap-2 font-bold text-[#000000]'>
-            <span>Name : </span>
-            <span>{ seller?.name } </span> 
-        </div>
-        <div className='flex gap-2 font-bold text-[#000000]'>
-            <span>Email : </span>
-            <span>{ seller?.email }</span> 
-        </div>
-
-        <div className='flex gap-2 font-bold text-[#000000]'>
-            <span>Role : </span>
-            <span>{ seller?.role }  </span> 
-        </div>
-        <div className='flex gap-2 font-bold text-[#000000]'>
-            <span>Status : </span>
-            <span>{ seller?.status } </span> 
-        </div>
-        <div className='flex gap-2 font-bold text-[#000000]'>
-            <span>Payment Status : </span>
-            <span>{ seller?.payment } </span> 
-        </div>
-
-    </div> 
-         </div> 
-            </div>
-
-
-            <div className='w-4/12'>
-                <div className='px-0 md:px-5 py-2'>
-                    <div className='py-2 text-lg'>
-                        <h2>Address</h2>
+                    <div className='flex gap-2'>
+                        {getStatusBadge(seller?.status)}
+                        {getPaymentBadge(seller?.payment)}
                     </div>
-
-    <div className='flex justify-between text-sm flex-col gap-2 p-4 bg-[#9e97e9] rounded-md'>
-        <div className='flex gap-2 font-bold text-[#000000]'>
-            <span>Shop Name : </span>
-            <span>{seller?.shopInfo?.shopName} </span> 
-        </div>
-        <div className='flex gap-2 font-bold text-[#000000]'>
-            <span>Divission : </span>
-            <span>{seller?.shopInfo?.division} </span> 
-        </div>
-
-        <div className='flex gap-2 font-bold text-[#000000]'>
-            <span>District : </span>
-            <span>{seller?.shopInfo?.district}  </span> 
-        </div>
-        <div className='flex gap-2 font-bold text-[#000000]'>
-            <span>State : </span>
-            <span>{seller?.shopInfo?.sub_district} </span> 
-        </div>
-        
-
-    </div> 
-         </div> 
-            </div>
- 
-        </div> 
-
-
-        <div> 
-            <form onSubmit={submit} >
-                <div className='flex gap-4 py-3'>
-                    <select value={status} onChange={(e)=>setStatus(e.target.value)} className='px-4 py-2 focus:border-indigo-500 outline-none bg-[#6a5fdf] border border-slate-700 rounded-md text-[#d0d2d6]' name="" id="" required>
-                        <option value="">--Select Status--</option>
-                        <option value="active">Active</option>
-                        <option value="deactive">Deactive</option>
-                    </select>
-                    <button className='bg-red-500 w-[170px] hover:shadow-red-500/40 hover:shadow-md text-white rounded-md px-7 py-2'>Submit</button>
-
                 </div>
-            </form>
-        </div>
+            </div>
 
+            <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
+                {/* Seller Profile Card */}
+                <div className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
+                    <div className='bg-gradient-to-r from-cyan-500 to-cyan-600 h-24 relative'>
+                        <div className='absolute -bottom-12 left-1/2 -translate-x-1/2'>
+                            <div className='w-24 h-24 bg-white rounded-2xl shadow-lg p-1 overflow-hidden'>
+                                {seller?.image ? (
+                                    <img src={seller.image} alt={seller.name} className='w-full h-full object-cover rounded-xl' />
+                                ) : (
+                                    <div className='w-full h-full bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-xl flex items-center justify-center'>
+                                        <span className='text-white text-3xl font-bold'>{seller?.name?.charAt(0).toUpperCase()}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
 
+                    <div className='pt-16 pb-6 px-6 text-center'>
+                        <h2 className='text-xl font-bold text-gray-800 mb-1'>{seller?.name}</h2>
+                        <p className='text-sm text-gray-500 flex items-center justify-center gap-1'>
+                            <FaEnvelope className='text-xs' /> {seller?.email}
+                        </p>
 
+                        <div className='mt-4 pt-4 border-t border-gray-100'>
+                            <div className='flex justify-center gap-6'>
+                                <div className='text-center'>
+                                    <p className='text-xs text-gray-500'>Role</p>
+                                    <p className='font-semibold text-gray-800 capitalize'>{seller?.role}</p>
+                                </div>
+                                <div className='text-center'>
+                                    <p className='text-xs text-gray-500'>Status</p>
+                                    <p className='font-semibold text-gray-800 capitalize'>{seller?.status}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                {/* Basic Info */}
+                <div className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
+                    <div className='p-4 border-b border-gray-100 flex items-center gap-2'>
+                        <FaUser className='text-cyan-500' />
+                        <h3 className='font-bold text-gray-800'>Basic Information</h3>
+                    </div>
+                    <div className='p-4 space-y-4'>
+                        <div className='flex items-start gap-3'>
+                            <div className='w-10 h-10 bg-cyan-50 rounded-xl flex items-center justify-center flex-shrink-0'>
+                                <FaUser className='text-cyan-500' />
+                            </div>
+                            <div>
+                                <p className='text-xs text-gray-500'>Full Name</p>
+                                <p className='font-medium text-gray-800'>{seller?.name || 'N/A'}</p>
+                            </div>
+                        </div>
 
+                        <div className='flex items-start gap-3'>
+                            <div className='w-10 h-10 bg-cyan-50 rounded-xl flex items-center justify-center flex-shrink-0'>
+                                <FaEnvelope className='text-cyan-500' />
+                            </div>
+                            <div>
+                                <p className='text-xs text-gray-500'>Email Address</p>
+                                <p className='font-medium text-gray-800'>{seller?.email || 'N/A'}</p>
+                            </div>
+                        </div>
 
+                        <div className='flex items-start gap-3'>
+                            <div className='w-10 h-10 bg-cyan-50 rounded-xl flex items-center justify-center flex-shrink-0'>
+                                <FaUserShield className='text-cyan-500' />
+                            </div>
+                            <div>
+                                <p className='text-xs text-gray-500'>Role</p>
+                                <p className='font-medium text-gray-800 capitalize'>{seller?.role || 'N/A'}</p>
+                            </div>
+                        </div>
 
-        </div> 
+                        <div className='flex items-start gap-3'>
+                            <div className='w-10 h-10 bg-cyan-50 rounded-xl flex items-center justify-center flex-shrink-0'>
+                                <FaCreditCard className='text-cyan-500' />
+                            </div>
+                            <div>
+                                <p className='text-xs text-gray-500'>Payment Status</p>
+                                <p className='font-medium text-gray-800 capitalize'>{seller?.payment || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Shop Info */}
+                <div className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
+                    <div className='p-4 border-b border-gray-100 flex items-center gap-2'>
+                        <FaStore className='text-purple-500' />
+                        <h3 className='font-bold text-gray-800'>Shop Information</h3>
+                    </div>
+                    <div className='p-4 space-y-4'>
+                        <div className='flex items-start gap-3'>
+                            <div className='w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0'>
+                                <FaStore className='text-purple-500' />
+                            </div>
+                            <div>
+                                <p className='text-xs text-gray-500'>Shop Name</p>
+                                <p className='font-medium text-gray-800'>{seller?.shopInfo?.shopName || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                        <div className='flex items-start gap-3'>
+                            <div className='w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0'>
+                                <FaMapMarkerAlt className='text-purple-500' />
+                            </div>
+                            <div>
+                                <p className='text-xs text-gray-500'>Division</p>
+                                <p className='font-medium text-gray-800'>{seller?.shopInfo?.division || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                        <div className='flex items-start gap-3'>
+                            <div className='w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0'>
+                                <FaMapMarkerAlt className='text-purple-500' />
+                            </div>
+                            <div>
+                                <p className='text-xs text-gray-500'>District</p>
+                                <p className='font-medium text-gray-800'>{seller?.shopInfo?.district || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                        <div className='flex items-start gap-3'>
+                            <div className='w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0'>
+                                <FaMapMarkerAlt className='text-purple-500' />
+                            </div>
+                            <div>
+                                <p className='text-xs text-gray-500'>Sub District / State</p>
+                                <p className='font-medium text-gray-800'>{seller?.shopInfo?.sub_district || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Status Update Form */}
+            <div className='bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mt-4'>
+                <h3 className='font-bold text-gray-800 mb-4'>Update Seller Status</h3>
+                <form onSubmit={submit} className='flex flex-col sm:flex-row gap-3'>
+                    <select
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        className='flex-1 sm:flex-none sm:w-[200px] px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-700 focus:border-cyan-500 outline-none'
+                        required
+                    >
+                        <option value="">-- Select Status --</option>
+                        <option value="active">Active</option>
+                        <option value="deactive">Inactive</option>
+                    </select>
+                    <button
+                        type='submit'
+                        className='px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-medium rounded-xl hover:shadow-lg transition-all'
+                    >
+                        Update Status
+                    </button>
+                </form>
+
+                {seller?.status === 'deactive' && (
+                    <div className='mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl'>
+                        <p className='text-sm text-amber-800'>
+                            <strong>Note:</strong> This seller is currently inactive. Their products will not appear on the storefront until reactivated.
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
