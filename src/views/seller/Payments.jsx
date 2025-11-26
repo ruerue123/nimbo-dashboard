@@ -96,7 +96,7 @@ const Payments = () => {
                 </div>
             </div>
 
-            {/* Stats Cards */}
+            {/* Stats Cards - Stack on mobile, 2 columns on tablet, 4 columns on desktop */}
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6'>
                 <div className='bg-white rounded-2xl shadow-sm border border-gray-100 p-5'>
                     <div className='flex justify-between items-start'>
@@ -147,7 +147,7 @@ const Payments = () => {
                 </div>
             </div>
 
-            {/* Main Content Grid */}
+            {/* Main Content Grid - Stack on mobile, 2 columns on desktop */}
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
                 {/* Withdrawal Request Card */}
                 <div className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
@@ -157,8 +157,8 @@ const Payments = () => {
                     </div>
 
                     <div className='p-5'>
-                        <form onSubmit={sendRequest} className='mb-6'>
-                            <div className='flex gap-3'>
+                        <div className='mb-6'>
+                            <div className='flex flex-col sm:flex-row gap-3'>
                                 <div className='flex-1 relative'>
                                     <span className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400'>$</span>
                                     <input
@@ -171,8 +171,9 @@ const Payments = () => {
                                     />
                                 </div>
                                 <button
+                                    onClick={sendRequest}
                                     disabled={loader}
-                                    className='px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-cyan-700 transition-all shadow-lg shadow-cyan-500/30 disabled:opacity-50 flex items-center gap-2'
+                                    className='px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-cyan-700 transition-all shadow-lg shadow-cyan-500/30 disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap'
                                 >
                                     {loader ? (
                                         <>
@@ -182,7 +183,7 @@ const Payments = () => {
                                     ) : 'Withdraw'}
                                 </button>
                             </div>
-                        </form>
+                        </div>
 
                         <div>
                             <h3 className='text-sm font-semibold text-gray-700 mb-3'>Pending Requests</h3>

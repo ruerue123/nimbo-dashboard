@@ -7,8 +7,7 @@ import { IoIosChatbubbles } from "react-icons/io";
 import { IoMdAdd } from "react-icons/io";
 import { MdViewList } from "react-icons/md";
 import { TbBasketDiscount } from "react-icons/tb";
-import { BsCartCheck } from "react-icons/bs"; 
-import { IoChatbubbles } from "react-icons/io5";
+import { BsCartCheck } from "react-icons/bs";
 import { BsFillChatQuoteFill } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 
@@ -113,13 +112,6 @@ export const allNav = [
     },
     {
         id : 15,
-        title : 'Chat-Customer',
-        icon : <IoChatbubbles />,
-        role : 'seller',
-        path: '/seller/dashboard/chat-customer'
-    },
-    {
-        id : 16,
         title : 'Chat-Support',
         icon : <BsFillChatQuoteFill />,
         role : 'seller',
