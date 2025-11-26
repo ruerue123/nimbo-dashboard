@@ -97,7 +97,7 @@ const Payments = () => {
             </div>
 
             {/* Stats Cards - Stack on mobile, 2 columns on tablet, 4 columns on desktop */}
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6'>
+            <div className='grid grid-cols-2 sm:grid-cols-1 lg:grid-cols-2 gap-4 mb-6'>
                 <div className='bg-white rounded-2xl shadow-sm border border-gray-100 p-5'>
                     <div className='flex justify-between items-start'>
                         <div>
@@ -148,7 +148,7 @@ const Payments = () => {
             </div>
 
             {/* Main Content Grid - Stack on mobile, 2 columns on desktop */}
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+            <div className='grid grid-cols-2 sm:grid-cols-1 gap-6'>
                 {/* Withdrawal Request Card */}
                 <div className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
                     <div className='p-5 border-b border-gray-100'>
