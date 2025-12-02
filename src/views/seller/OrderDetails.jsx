@@ -25,6 +25,10 @@ const OrderDetails = () => {
 
     useEffect(() => {
         setStatus(order?.delivery_status)
+    }, [order?.delivery_status])
+
+    // Only initialize delivery details once when order is first loaded
+    useEffect(() => {
         if (order?.deliveryDetails) {
             setDeliveryDetails({
                 courierName: order.deliveryDetails.courierName || '',
@@ -35,7 +39,7 @@ const OrderDetails = () => {
                 notes: order.deliveryDetails.notes || ''
             })
         }
-    }, [order])
+    }, [order?._id])
 
     useEffect(() => {
         dispatch(get_seller_order(orderId))
