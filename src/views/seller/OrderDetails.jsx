@@ -10,6 +10,7 @@ const OrderDetails = () => {
     const { orderId } = useParams()
     const dispatch = useDispatch()
     const [status, setStatus] = useState('')
+    const formInitialized = useRef(false)
 
     const { order, errorMessage, successMessage, lastDeliveryUpdate } = useSelector(state => state.order)
 
@@ -27,9 +28,14 @@ const OrderDetails = () => {
         setStatus(order?.delivery_status)
     }, [order?.delivery_status])
 
-    // Only initialize delivery details once when order is first loaded
+    // Only initialize delivery details once when order is first loaded, not on subsequent updates
     useEffect(() => {
-        if (order?.deliveryDetails) {
+        // Reset flag when viewing a different order
+        if (order?._id && order?._id !== orderId) {
+            formInitialized.current = false
+        }
+
+        if (order?._id && order?.deliveryDetails && !formInitialized.current) {
             setDeliveryDetails({
                 courierName: order.deliveryDetails.courierName || '',
                 courierPhone: order.deliveryDetails.courierPhone || '',
@@ -38,8 +44,9 @@ const OrderDetails = () => {
                 trackingNumber: order.deliveryDetails.trackingNumber || '',
                 notes: order.deliveryDetails.notes || ''
             })
+            formInitialized.current = true
         }
-    }, [order?._id])
+    }, [order?._id, orderId])
 
     useEffect(() => {
         dispatch(get_seller_order(orderId))
