@@ -7,8 +7,8 @@ const Header = ({ showSidebar, setShowSidebar }) => {
     const { userInfo } = useSelector(state => state.auth);
 
     return (
-        <div className='fixed top-0 left-0 w-full py-4 px-4 lg:px-6 z-40'>
-            <div className='ml-0 lg:ml-[280px] rounded-2xl h-[70px] flex justify-between items-center bg-white shadow-sm border border-gray-100 px-6 transition-all'>
+        <div className='fixed top-0 left-0 w-full py-2 sm:py-4 px-2 sm:px-4 lg:px-6 z-40'>
+            <div className='ml-0 lg:ml-[280px] rounded-2xl h-[60px] sm:h-[70px] flex justify-between items-center bg-white shadow-sm border border-gray-100 px-3 sm:px-6 transition-all'>
                 {/* Mobile Menu Toggle */}
                 <div
                     onClick={() => setShowSidebar(!showSidebar)}

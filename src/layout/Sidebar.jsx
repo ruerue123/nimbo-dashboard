@@ -20,10 +20,10 @@ const Sidebar = ({ showSidebar, setShowSidebar }) => {
 
     return (
         <div>
-            {/* Overlay */}
+            {/* Overlay - only visible on mobile when sidebar is open */}
             <div
                 onClick={() => setShowSidebar(false)}
-                className={`fixed duration-300 ${!showSidebar ? 'invisible opacity-0' : 'visible opacity-100'} w-screen h-screen bg-gray-900/50 backdrop-blur-sm top-0 left-0 z-10`}
+                className={`fixed duration-300 lg:hidden ${!showSidebar ? 'invisible opacity-0' : 'visible opacity-100'} w-screen h-screen bg-gray-900/50 backdrop-blur-sm top-0 left-0 z-10`}
             />
 
             {/* Sidebar */}
