@@ -5,7 +5,12 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { get_seller_dashboard_data } from '../../store/Reducers/dashboardReducer';
 import moment from 'moment';
-import Chart from 'react-apexcharts';
+
+// Dynamically import Chart only on client side
+let Chart = null;
+if (typeof window !== 'undefined') {
+    Chart = require('react-apexcharts').default;
+}
 
 const SellerDashboard = () => {
     const dispatch = useDispatch();
@@ -100,7 +105,11 @@ const SellerDashboard = () => {
                         <h2 className='text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4'>Revenue Overview</h2>
                         <div className='w-full overflow-x-auto'>
                             <div className='min-w-[300px]'>
-                                <Chart options={chartOptions.options} series={chartOptions.series} type='bar' height={300} width="100%" />
+                                {Chart ? (
+                                    <Chart options={chartOptions.options} series={chartOptions.series} type='bar' height={300} width="100%" />
+                                ) : (
+                                    <div className='h-[300px] flex items-center justify-center text-gray-400'>Loading chart...</div>
+                                )}
                             </div>
                         </div>
                     </div>
