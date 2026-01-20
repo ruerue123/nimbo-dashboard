@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { MdCurrencyExchange, MdProductionQuantityLimits } from "react-icons/md";
 import { FaUsers } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
-import Chart from 'react-apexcharts';
+const Chart = lazy(() => import('react-apexcharts'));
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { get_admin_dashboard_data } from '../../store/Reducers/dashboardReducer';
@@ -101,7 +101,9 @@ const AdminDashboard = () => {
                         <h2 className='text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4'>Platform Overview</h2>
                         <div className='w-full overflow-x-auto'>
                             <div className='min-w-[300px]'>
-                                <Chart options={chartOptions.options} series={chartOptions.series} type='bar' height={300} width="100%" />
+                                <Suspense fallback={<div className='h-[300px] flex items-center justify-center text-gray-400'>Loading chart...</div>}>
+                                    <Chart options={chartOptions.options} series={chartOptions.series} type='bar' height={300} width="100%" />
+                                </Suspense>
                             </div>
                         </div>
                     </div>
