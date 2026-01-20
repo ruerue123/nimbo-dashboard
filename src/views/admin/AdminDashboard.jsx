@@ -2,11 +2,12 @@ import React, { useEffect, lazy, Suspense } from 'react';
 import { MdCurrencyExchange, MdProductionQuantityLimits } from "react-icons/md";
 import { FaUsers } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
-const Chart = lazy(() => import('react-apexcharts'));
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { get_admin_dashboard_data } from '../../store/Reducers/dashboardReducer';
 import moment from 'moment';
+
+const Chart = lazy(() => import('react-apexcharts'));
 
 const AdminDashboard = () => {
     const dispatch = useDispatch();
