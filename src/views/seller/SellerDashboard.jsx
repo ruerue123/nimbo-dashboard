@@ -1,12 +1,11 @@
-import React, { useEffect, lazy, Suspense } from 'react';
+import React, { useEffect } from 'react';
 import { MdCurrencyExchange, MdProductionQuantityLimits } from "react-icons/md";
 import { FaCartShopping, FaClock } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { get_seller_dashboard_data } from '../../store/Reducers/dashboardReducer';
 import moment from 'moment';
-
-const Chart = lazy(() => import('react-apexcharts'));
+import Chart from 'react-apexcharts';
 
 const SellerDashboard = () => {
     const dispatch = useDispatch();
@@ -101,9 +100,7 @@ const SellerDashboard = () => {
                         <h2 className='text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4'>Revenue Overview</h2>
                         <div className='w-full overflow-x-auto'>
                             <div className='min-w-[300px]'>
-                                <Suspense fallback={<div className='h-[300px] flex items-center justify-center text-gray-400'>Loading chart...</div>}>
-                                    <Chart options={chartOptions.options} series={chartOptions.series} type='bar' height={300} width="100%" />
-                                </Suspense>
+                                <Chart options={chartOptions.options} series={chartOptions.series} type='bar' height={300} width="100%" />
                             </div>
                         </div>
                     </div>
