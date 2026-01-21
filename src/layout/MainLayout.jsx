@@ -36,7 +36,7 @@ const MainLayout = () => {
             <Header showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
             <Sidebar showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
 
-           <div className='ml-0 lg:ml-[280px] pt-[75px] sm:pt-[95px] transition-all min-h-screen overflow-x-hidden'>
+           <div className='ml-0 lg:ml-[280px] pt-[75px] sm:pt-[95px] transition-all min-h-screen w-full lg:w-[calc(100%-280px)]'>
                <ErrorBoundary>
                    <Suspense fallback={
                        <div className='flex items-center justify-center h-[calc(100vh-95px)]'>

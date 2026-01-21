@@ -3,9 +3,14 @@
 @tailwind utilities;
 
 /* Safari mobile fixes */
-html, body {
+html {
   -webkit-overflow-scrolling: touch;
-  overflow-x: hidden;
+}
+
+body {
+  overflow-x: clip;
+  width: 100%;
+  position: relative;
 }
 
 /* Fix for iOS Safari viewport height issues */
