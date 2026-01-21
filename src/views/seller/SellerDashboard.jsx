@@ -104,7 +104,7 @@ const SellerDashboard = () => {
                     <div className='bg-white rounded-xl sm:rounded-2xl p-3 sm:p-6 shadow-sm border border-gray-100'>
                         <h2 className='text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4'>Revenue Overview</h2>
                         <div className='w-full overflow-x-auto'>
-                            <div className='min-w-[300px]'>
+                            <div className='min-w-0'>
                                 {Chart ? (
                                     <Chart options={chartOptions.options} series={chartOptions.series} type='bar' height={300} width="100%" />
                                 ) : (

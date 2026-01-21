@@ -83,7 +83,7 @@ const ChatSeller = () => {
                 <div className='flex w-full h-full relative'>
 
                     {/* Sellers Sidebar */}
-                    <div className={`w-[280px] h-full absolute z-10 ${show ? 'left-0' : '-left-[300px]'} md:left-0 md:relative transition-all border-r border-gray-100 bg-white`}>
+                    <div className={`w-[260px] sm:w-[280px] h-full absolute z-10 ${show ? 'left-0' : '-left-[280px]'} md:left-0 md:relative transition-all border-r border-gray-100 bg-white`}>
                         <div className='p-4 border-b border-gray-100 flex items-center justify-between'>
                             <div className='flex items-center gap-2'>
                                 <FaComments className='text-cyan-500' />
