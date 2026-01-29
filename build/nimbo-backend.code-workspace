@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../nimbo-backend"
+		},
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../nimbo-frontend"
+		}
+	]
+}

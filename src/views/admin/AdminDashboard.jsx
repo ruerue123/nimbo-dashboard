@@ -151,7 +151,7 @@ const AdminDashboard = () => {
     const getAvatarColor = (index) => avatarColors[index % avatarColors.length];
 
     return (
-        <div className='px-4 md:px-6 py-4 pb-8 max-w-full overflow-x-hidden'>
+        <div className='px-4 md:px-6 py-4 pb-8 w-full min-w-0'>
             {/* Stats Cards - 2x2 grid on mobile */}
             <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
                 {statCards.map((card, index) => (
