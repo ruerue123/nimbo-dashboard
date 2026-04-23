@@ -48,9 +48,9 @@ const Profile = () => {
         dispatch(profile_info_add(state))
     }
 
-    // Change Password
+    // Change Password — server identifies the user from the auth cookie,
+    // so we only send old/new password.
     const [passwordData, setPasswordData] = useState({
-        email: "",
         old_password: "",
         new_password: ""
     });
@@ -243,17 +243,6 @@ const Profile = () => {
                         </div>
                         <div className='p-6'>
                             <form onSubmit={handlePasswordChange} className='space-y-4'>
-                                <div>
-                                    <label className='block text-sm font-medium text-gray-700 mb-2'>Email</label>
-                                    <input
-                                        className='w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all'
-                                        type="email"
-                                        name='email'
-                                        value={passwordData.email}
-                                        onChange={pinputHandle}
-                                        placeholder='Enter your email'
-                                    />
-                                </div>
                                 <div>
                                     <label className='block text-sm font-medium text-gray-700 mb-2'>Current Password</label>
                                     <input
