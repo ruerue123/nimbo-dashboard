@@ -1,11 +1,30 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../api/api";
 
+// Rehydrates session on app mount and after login. With HttpOnly cookies
+// the dashboard can't read the token from JS, so we ask the server who we
+// are. Role comes back on userInfo.role.
+export const get_user_info = createAsyncThunk(
+    'auth/get_user_info',
+    async (_, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.get('/get-user', { withCredentials: true })
+            return fulfillWithValue(data)
+        } catch (error) {
+            return rejectWithValue(error.response?.data || { error: 'Not authenticated' })
+        }
+    }
+)
+
+// Fetch session immediately after login so role/userInfo are populated
+// before the login page reads successMessage and navigates away. Otherwise
+// ProtectRoute sees role='' and bounces straight back to /login.
 export const admin_login = createAsyncThunk(
     'auth/admin_login',
-    async (info, { rejectWithValue, fulfillWithValue }) => {
+    async (info, { dispatch, rejectWithValue, fulfillWithValue }) => {
         try {
             const { data } = await api.post('/admin-login', info, { withCredentials: true });
+            await dispatch(get_user_info()).unwrap();
             return fulfillWithValue(data);
         } catch (error) {
             return rejectWithValue(error.response?.data || { error: 'Network error' });
@@ -16,27 +35,13 @@ export const admin_login = createAsyncThunk(
 
 export const seller_login = createAsyncThunk(
     'auth/seller_login',
-    async (info, { rejectWithValue, fulfillWithValue }) => {
+    async (info, { dispatch, rejectWithValue, fulfillWithValue }) => {
         try {
             const { data } = await api.post('/seller-login', info, { withCredentials: true })
+            await dispatch(get_user_info()).unwrap();
             return fulfillWithValue(data)
         } catch (error) {
             return rejectWithValue(error.response?.data || { error: 'Network error' })
-        }
-    }
-)
-
-// Rehydrates session on app mount. With HttpOnly cookies the dashboard can't
-// read the token from JS, so we ask the server who we are. Role comes back
-// on userInfo.role.
-export const get_user_info = createAsyncThunk(
-    'auth/get_user_info',
-    async (_, { rejectWithValue, fulfillWithValue }) => {
-        try {
-            const { data } = await api.get('/get-user', { withCredentials: true })
-            return fulfillWithValue(data)
-        } catch (error) {
-            return rejectWithValue(error.response?.data || { error: 'Not authenticated' })
         }
     }
 )
@@ -56,9 +61,10 @@ export const profile_image_upload = createAsyncThunk(
 
 export const seller_register = createAsyncThunk(
     'auth/seller_register',
-    async (info, { rejectWithValue, fulfillWithValue }) => {
+    async (info, { dispatch, rejectWithValue, fulfillWithValue }) => {
         try {
             const { data } = await api.post('/seller-register', info, { withCredentials: true })
+            await dispatch(get_user_info()).unwrap();
             return fulfillWithValue(data)
         } catch (error) {
             return rejectWithValue(error.response?.data || { error: 'Network error' })
