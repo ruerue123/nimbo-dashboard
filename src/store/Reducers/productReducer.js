@@ -86,6 +86,9 @@ export const update_product = createAsyncThunk(
             formData.append('price', product.price)
             formData.append('discount', product.discount)
             formData.append('brand', product.brand)
+            formData.append('sizes', JSON.stringify(product.sizes || []))
+            formData.append('colors', JSON.stringify(product.colors || []))
+            formData.append('variants', JSON.stringify(product.variants || []))
 
             const {data} = await api.post('/product-update', formData, {withCredentials: true})
             console.log(data)

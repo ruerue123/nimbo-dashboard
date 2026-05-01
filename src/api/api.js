@@ -1,5 +1,5 @@
 import axios from "axios";
-const local = 'http://localhost:5000'
+const local = 'http://localhost:50001'
 const production = 'https://nimbo-backend-1.onrender.com'
 
 let api_url =''

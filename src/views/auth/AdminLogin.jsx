@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { admin_login, messageClear } from '../../store/Reducers/authReducer';
 import { PropagateLoader } from 'react-spinners';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 
 const AdminLogin = () => {
@@ -96,6 +96,12 @@ const AdminLogin = () => {
                                 id='password'
                                 required
                             />
+                        </div>
+
+                        <div className='flex justify-end -mt-2'>
+                            <Link to='/forgot-password?role=admin' className='text-sm text-cyan-400 hover:text-cyan-300 font-medium'>
+                                Forgot password?
+                            </Link>
                         </div>
 
                         <button

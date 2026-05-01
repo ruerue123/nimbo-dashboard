@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { get_category } from '../../store/Reducers/categoryReducer';
 import { get_product, update_product, messageClear, product_image_update } from '../../store/Reducers/productReducer';
 import toast from 'react-hot-toast';
+import VariantsEditor from '../../components/seller/VariantsEditor';
 
 const EditProduct = () => {
     const { productId } = useParams()
@@ -29,8 +30,15 @@ const EditProduct = () => {
         description: '',
         discount: '',
         price: "",
-        brand: "",
-        stock: ""
+        brand: ""
+    })
+
+    const [variantState, setVariantState] = useState({
+        hasVariants: false,
+        sizes: [],
+        colors: [],
+        variants: [],
+        stock: ''
     })
 
     const inputHandle = (e) => {
@@ -75,8 +83,14 @@ const EditProduct = () => {
                 description: product.description || '',
                 discount: product.discount || '',
                 price: product.price || '',
-                brand: product.brand || '',
-                stock: product.stock || ''
+                brand: product.brand || ''
+            })
+            setVariantState({
+                hasVariants: Boolean(product.hasVariants),
+                sizes: Array.isArray(product.sizes) ? product.sizes : [],
+                colors: Array.isArray(product.colors) ? product.colors : [],
+                variants: Array.isArray(product.variants) ? product.variants : [],
+                stock: product.stock != null ? String(product.stock) : ''
             })
             setCategory(product.category || '')
             setImageShow(product.images || [])
@@ -108,9 +122,14 @@ const EditProduct = () => {
             discount: state.discount,
             price: state.price,
             brand: state.brand,
-            stock: state.stock,
+            // When variants are on the backend recomputes stock from the
+            // variant rows; we still send a number for the no-variants case.
+            stock: variantState.hasVariants ? '0' : (variantState.stock || '0'),
             category: category,
-            productId: productId
+            productId: productId,
+            sizes: variantState.hasVariants ? variantState.sizes : [],
+            colors: variantState.hasVariants ? variantState.colors : [],
+            variants: variantState.hasVariants ? variantState.variants : []
         }
         dispatch(update_product(obj))
     }
@@ -174,62 +193,52 @@ const EditProduct = () => {
                             </div>
                         </div>
 
-                        {/* Category & Stock */}
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                            <div className='relative'>
-                                <label className='block text-sm font-medium text-gray-700 mb-2'>Category</label>
-                                <div
-                                    onClick={() => setCateShow(!cateShow)}
-                                    className='w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer flex items-center justify-between'
-                                >
-                                    <span className={category ? 'text-gray-800' : 'text-gray-400'}>
-                                        {category || 'Select category'}
-                                    </span>
-                                    <FaBox className='text-gray-400' />
-                                </div>
+                        {/* Category */}
+                        <div className='relative'>
+                            <label className='block text-sm font-medium text-gray-700 mb-2'>Category</label>
+                            <div
+                                onClick={() => setCateShow(!cateShow)}
+                                className='w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer flex items-center justify-between'
+                            >
+                                <span className={category ? 'text-gray-800' : 'text-gray-400'}>
+                                    {category || 'Select category'}
+                                </span>
+                                <FaBox className='text-gray-400' />
+                            </div>
 
-                                {cateShow && (
-                                    <div className='absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden'>
-                                        <div className='p-3 border-b border-gray-100'>
-                                            <input
-                                                value={searchValue}
-                                                onChange={categorySearch}
-                                                className='w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg outline-none text-sm'
-                                                type="text"
-                                                placeholder='Search categories...'
-                                            />
-                                        </div>
-                                        <div className='max-h-[200px] overflow-y-auto'>
-                                            {allCategory.length > 0 && allCategory.map((c, i) => (
-                                                <div
-                                                    key={i}
-                                                    className={`px-4 py-2.5 cursor-pointer hover:bg-cyan-50 transition-colors ${category === c.name ? 'bg-cyan-50 text-cyan-600' : 'text-gray-700'}`}
-                                                    onClick={() => {
-                                                        setCateShow(false)
-                                                        setCategory(c.name)
-                                                        setSearchValue('')
-                                                        setAllCategory(categorys)
-                                                    }}
-                                                >
-                                                    {c.name}
-                                                </div>
-                                            ))}
-                                        </div>
+                            {cateShow && (
+                                <div className='absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden'>
+                                    <div className='p-3 border-b border-gray-100'>
+                                        <input
+                                            value={searchValue}
+                                            onChange={categorySearch}
+                                            className='w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg outline-none text-sm'
+                                            type="text"
+                                            placeholder='Search categories...'
+                                        />
                                     </div>
-                                )}
-                            </div>
-                            <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-2'>Stock</label>
-                                <input
-                                    className='w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition-all'
-                                    onChange={inputHandle}
-                                    value={state.stock}
-                                    type="number"
-                                    name='stock'
-                                    placeholder='Available stock'
-                                />
-                            </div>
+                                    <div className='max-h-[200px] overflow-y-auto'>
+                                        {allCategory.length > 0 && allCategory.map((c, i) => (
+                                            <div
+                                                key={i}
+                                                className={`px-4 py-2.5 cursor-pointer hover:bg-cyan-50 transition-colors ${category === c.name ? 'bg-cyan-50 text-cyan-600' : 'text-gray-700'}`}
+                                                onClick={() => {
+                                                    setCateShow(false)
+                                                    setCategory(c.name)
+                                                    setSearchValue('')
+                                                    setAllCategory(categorys)
+                                                }}
+                                            >
+                                                {c.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
+
+                        {/* Sizes / Colors / Stock */}
+                        <VariantsEditor value={variantState} onChange={setVariantState} />
 
                         {/* Price & Discount */}
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>

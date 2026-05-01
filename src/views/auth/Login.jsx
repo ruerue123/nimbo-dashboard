@@ -91,6 +91,12 @@ const Login = () => {
                             />
                         </div>
 
+                        <div className='flex justify-end -mt-2'>
+                            <Link to='/forgot-password' className='text-sm text-cyan-600 hover:text-cyan-700 font-medium'>
+                                Forgot password?
+                            </Link>
+                        </div>
+
                         <button
                             disabled={loader}
                             className='w-full py-3.5 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white font-semibold rounded-xl shadow-lg shadow-cyan-500/30 hover:shadow-xl hover:shadow-cyan-500/40 transition-all disabled:opacity-70'

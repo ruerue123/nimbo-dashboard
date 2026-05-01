@@ -7,6 +7,7 @@ import { get_category } from '../../store/Reducers/categoryReducer';
 import { add_product, messageClear } from '../../store/Reducers/productReducer';
 import { PropagateLoader } from 'react-spinners';
 import toast from 'react-hot-toast';
+import VariantsEditor from '../../components/seller/VariantsEditor';
 
 const AddProduct = () => {
     const dispatch = useDispatch()
@@ -26,8 +27,15 @@ const AddProduct = () => {
         description: '',
         discount: '',
         price: "",
-        brand: "",
-        stock: ""
+        brand: ""
+    })
+
+    const [variantState, setVariantState] = useState({
+        hasVariants: false,
+        sizes: [],
+        colors: [],
+        variants: [],
+        stock: ''
     })
 
     const inputHandle = (e) => {
@@ -78,9 +86,9 @@ const AddProduct = () => {
                 description: '',
                 discount: '',
                 price: "",
-                brand: "",
-                stock: ""
+                brand: ""
             })
+            setVariantState({ hasVariants: false, sizes: [], colors: [], variants: [], stock: '' })
             setImageShow([])
             setImages([])
             setCategory('')
@@ -111,14 +119,42 @@ const AddProduct = () => {
 
     const add = (e) => {
         e.preventDefault()
+
+        // Custom validations for fields the browser's `required` can't reach
+        // (the category dropdown, the image picker, and the variant stock totals).
+        if (!category) {
+            toast.error('Please choose a category')
+            return
+        }
+        if (images.length === 0) {
+            toast.error('Please upload at least one product image')
+            return
+        }
+        if (variantState.hasVariants) {
+            const total = (variantState.variants || []).reduce((sum, v) => sum + (Number(v.stock) || 0), 0)
+            if (total <= 0) {
+                toast.error('Add stock to at least one size/color combination')
+                return
+            }
+        } else if (!variantState.stock || Number(variantState.stock) <= 0) {
+            toast.error('Stock quantity must be at least 1')
+            return
+        }
+
         const formData = new FormData()
         formData.append('name', state.name)
         formData.append('description', state.description)
         formData.append('price', state.price)
-        formData.append('stock', state.stock)
+        // When variants are on, the backend recomputes stock as the sum across
+        // variants. We still send the simple stock value for the no-variants
+        // case so non-clothing sellers don't have to think about it.
+        formData.append('stock', variantState.hasVariants ? '0' : (variantState.stock || '0'))
         formData.append('discount', state.discount)
         formData.append('brand', state.brand)
         formData.append('category', category)
+        formData.append('sizes', JSON.stringify(variantState.hasVariants ? variantState.sizes : []))
+        formData.append('colors', JSON.stringify(variantState.hasVariants ? variantState.colors : []))
+        formData.append('variants', JSON.stringify(variantState.hasVariants ? variantState.variants : []))
 
         for (let i = 0; i < images.length; i++) {
             formData.append('images', images[i])
@@ -156,10 +192,11 @@ const AddProduct = () => {
             <div className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
                 <form onSubmit={add}>
                     <div className='p-6 space-y-6'>
+                        <p className='text-xs text-gray-500'>Fields marked <span className='text-red-500'>*</span> are required.</p>
                         {/* Product Name & Brand */}
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                             <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-2'>Product Name</label>
+                                <label className='block text-sm font-medium text-gray-700 mb-2'>Product Name <span className='text-red-500'>*</span></label>
                                 <input
                                     className='w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all'
                                     onChange={inputHandle}
@@ -167,10 +204,11 @@ const AddProduct = () => {
                                     type="text"
                                     name='name'
                                     placeholder='Enter product name'
+                                    required
                                 />
                             </div>
                             <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-2'>Brand</label>
+                                <label className='block text-sm font-medium text-gray-700 mb-2'>Brand <span className='text-red-500'>*</span></label>
                                 <input
                                     className='w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all'
                                     onChange={inputHandle}
@@ -178,71 +216,62 @@ const AddProduct = () => {
                                     type="text"
                                     name='brand'
                                     placeholder='Enter brand name'
+                                    required
                                 />
                             </div>
                         </div>
 
-                        {/* Category & Stock */}
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                            <div className='relative'>
-                                <label className='block text-sm font-medium text-gray-700 mb-2'>Category</label>
-                                <div
-                                    onClick={() => setCateShow(!cateShow)}
-                                    className='w-full px-4 py-3 border border-gray-200 rounded-xl cursor-pointer flex items-center justify-between bg-white hover:border-gray-300 transition-colors'
-                                >
-                                    <span className={category ? 'text-gray-800' : 'text-gray-400'}>
-                                        {category || 'Select category'}
-                                    </span>
-                                    <FaChevronDown className={`text-gray-400 transition-transform ${cateShow ? 'rotate-180' : ''}`} />
-                                </div>
+                        {/* Category */}
+                        <div className='relative'>
+                            <label className='block text-sm font-medium text-gray-700 mb-2'>Category <span className='text-red-500'>*</span></label>
+                            <div
+                                onClick={() => setCateShow(!cateShow)}
+                                className='w-full px-4 py-3 border border-gray-200 rounded-xl cursor-pointer flex items-center justify-between bg-white hover:border-gray-300 transition-colors'
+                            >
+                                <span className={category ? 'text-gray-800' : 'text-gray-400'}>
+                                    {category || 'Select category'}
+                                </span>
+                                <FaChevronDown className={`text-gray-400 transition-transform ${cateShow ? 'rotate-180' : ''}`} />
+                            </div>
 
-                                {cateShow && (
-                                    <div className='absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden'>
-                                        <div className='p-3 border-b border-gray-100'>
-                                            <input
-                                                value={searchValue}
-                                                onChange={categorySearch}
-                                                className='w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-cyan-500 outline-none text-sm'
-                                                type="text"
-                                                placeholder='Search categories...'
-                                            />
-                                        </div>
-                                        <div className='max-h-[200px] overflow-y-auto'>
-                                            {allCategory.map((c, i) => (
-                                                <div
-                                                    key={i}
-                                                    className={`px-4 py-3 cursor-pointer hover:bg-cyan-50 transition-colors ${category === c.name ? 'bg-cyan-50 text-cyan-600 font-medium' : 'text-gray-700'}`}
-                                                    onClick={() => {
-                                                        setCateShow(false)
-                                                        setCategory(c.name)
-                                                        setSearchValue('')
-                                                        setAllCategory(categorys)
-                                                    }}
-                                                >
-                                                    {c.name}
-                                                </div>
-                                            ))}
-                                        </div>
+                            {cateShow && (
+                                <div className='absolute z-20 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden'>
+                                    <div className='p-3 border-b border-gray-100'>
+                                        <input
+                                            value={searchValue}
+                                            onChange={categorySearch}
+                                            className='w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-cyan-500 outline-none text-sm'
+                                            type="text"
+                                            placeholder='Search categories...'
+                                        />
                                     </div>
-                                )}
-                            </div>
-                            <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-2'>Stock Quantity</label>
-                                <input
-                                    className='w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all'
-                                    onChange={inputHandle}
-                                    value={state.stock}
-                                    type="number"
-                                    name='stock'
-                                    placeholder='Enter stock quantity'
-                                />
-                            </div>
+                                    <div className='max-h-[200px] overflow-y-auto'>
+                                        {allCategory.map((c, i) => (
+                                            <div
+                                                key={i}
+                                                className={`px-4 py-3 cursor-pointer hover:bg-cyan-50 transition-colors ${category === c.name ? 'bg-cyan-50 text-cyan-600 font-medium' : 'text-gray-700'}`}
+                                                onClick={() => {
+                                                    setCateShow(false)
+                                                    setCategory(c.name)
+                                                    setSearchValue('')
+                                                    setAllCategory(categorys)
+                                                }}
+                                            >
+                                                {c.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
+
+                        {/* Sizes / Colors / Stock (variant-aware) */}
+                        <VariantsEditor value={variantState} onChange={setVariantState} />
 
                         {/* Price & Discount */}
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                             <div>
-                                <label className='block text-sm font-medium text-gray-700 mb-2'>Price ($)</label>
+                                <label className='block text-sm font-medium text-gray-700 mb-2'>Price ($) <span className='text-red-500'>*</span></label>
                                 <input
                                     className='w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all'
                                     onChange={inputHandle}
@@ -250,6 +279,9 @@ const AddProduct = () => {
                                     type="number"
                                     name='price'
                                     placeholder='0.00'
+                                    min='0'
+                                    step='0.01'
+                                    required
                                 />
                             </div>
                             <div>
@@ -267,7 +299,7 @@ const AddProduct = () => {
 
                         {/* Description */}
                         <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-2'>Description</label>
+                            <label className='block text-sm font-medium text-gray-700 mb-2'>Description <span className='text-red-500'>*</span></label>
                             <textarea
                                 className='w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 outline-none transition-all resize-none'
                                 onChange={inputHandle}
@@ -275,12 +307,13 @@ const AddProduct = () => {
                                 name='description'
                                 placeholder='Describe your product...'
                                 rows="4"
+                                required
                             ></textarea>
                         </div>
 
                         {/* Images */}
                         <div>
-                            <label className='block text-sm font-medium text-gray-700 mb-2'>Product Images</label>
+                            <label className='block text-sm font-medium text-gray-700 mb-2'>Product Images <span className='text-red-500'>*</span></label>
                             <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'>
                                 {imageShow.map((img, i) => (
                                     <div key={i} className='relative group'>
