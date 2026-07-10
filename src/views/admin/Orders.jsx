@@ -39,6 +39,21 @@ const Orders = () => {
         return status?.replace('_', ' ').charAt(0).toUpperCase() + status?.replace('_', ' ').slice(1);
     };
 
+    // Orders are stored as UTC timestamps (server runs UTC). Display them in
+    // Harare time (Central Africa Time, UTC+2, no daylight saving).
+    const formatHarare = (value) => {
+        if (!value) return '—';
+        try {
+            return new Date(value).toLocaleString('en-GB', {
+                timeZone: 'Africa/Harare',
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: true
+            });
+        } catch {
+            return '—';
+        }
+    };
+
     return (
         <div className='px-4 lg:px-6 py-5'>
             {/* Header */}
@@ -82,12 +97,12 @@ const Orders = () => {
             <div className='bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden'>
                 {/* Desktop Table Header */}
                 <div className='hidden lg:grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-600 uppercase'>
-                    <div className='col-span-3'>Order ID</div>
+                    <div className='col-span-2'>Order ID</div>
+                    <div className='col-span-3'>Date & Time</div>
                     <div className='col-span-2'>Price</div>
                     <div className='col-span-2'>Payment</div>
-                    <div className='col-span-2'>Status</div>
+                    <div className='col-span-1'>Status</div>
                     <div className='col-span-2'>Action</div>
-                    <div className='col-span-1'></div>
                 </div>
 
                 {/* Orders List */}
@@ -108,6 +123,7 @@ const Orders = () => {
                                             <span className='text-sm font-medium text-gray-800'>#{order._id?.slice(-8)}</span>
                                             <span className='text-lg font-bold text-cyan-600'>${Number(order.price).toFixed(2)}</span>
                                         </div>
+                                        <div className='text-xs text-gray-500'>{formatHarare(order.createdAt)}</div>
                                         <div className='flex items-center gap-2'>
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(order.payment_status)}`}>
                                                 {formatStatus(order.payment_status)}
@@ -136,8 +152,11 @@ const Orders = () => {
 
                                     {/* Desktop View */}
                                     <div className='hidden lg:grid grid-cols-12 gap-4 items-center'>
-                                        <div className='col-span-3'>
+                                        <div className='col-span-2'>
                                             <span className='text-sm font-medium text-gray-800'>#{order._id?.slice(-8)}</span>
+                                        </div>
+                                        <div className='col-span-3'>
+                                            <span className='text-sm text-gray-600'>{formatHarare(order.createdAt)}</span>
                                         </div>
                                         <div className='col-span-2'>
                                             <span className='text-sm font-bold text-gray-800'>${Number(order.price).toFixed(2)}</span>
@@ -147,20 +166,18 @@ const Orders = () => {
                                                 {formatStatus(order.payment_status)}
                                             </span>
                                         </div>
-                                        <div className='col-span-2'>
+                                        <div className='col-span-1'>
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(order.delivery_status)}`}>
                                                 {formatStatus(order.delivery_status)}
                                             </span>
                                         </div>
-                                        <div className='col-span-2'>
+                                        <div className='col-span-2 flex items-center gap-1'>
                                             <Link
                                                 to={`/admin/dashboard/order/details/${order._id}`}
                                                 className='inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500 text-white rounded-lg text-xs font-medium hover:bg-cyan-600 transition-colors'
                                             >
                                                 <FaEye /> View
                                             </Link>
-                                        </div>
-                                        <div className='col-span-1'>
                                             {order.suborder?.length > 0 && (
                                                 <button
                                                     onClick={() => setExpandedOrder(expandedOrder === order._id ? null : order._id)}
