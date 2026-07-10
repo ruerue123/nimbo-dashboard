@@ -37,6 +37,20 @@ const OrderDetails = () => {
 
     const formatPrice = (price) => Number(price || 0).toFixed(2)
 
+    // Show the order timestamp in Harare time (UTC+2) instead of stored UTC.
+    const formatHarare = (value) => {
+        if (!value) return '—';
+        try {
+            return new Date(value).toLocaleString('en-GB', {
+                timeZone: 'Africa/Harare',
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: true
+            });
+        } catch {
+            return '—';
+        }
+    }
+
     const getStatusBadge = (status) => {
         switch (status) {
             case 'delivered': return 'bg-emerald-100 text-emerald-700';
@@ -76,7 +90,7 @@ const OrderDetails = () => {
                         </Link>
                         <div>
                             <h1 className='text-lg font-bold text-gray-800'>Order #{order._id?.slice(-8)}</h1>
-                            <p className='text-xs text-gray-500'>{order.date}</p>
+                            <p className='text-xs text-gray-500'>{formatHarare(order.createdAt)}</p>
                         </div>
                     </div>
                     <div className='flex flex-wrap items-center gap-3'>
@@ -114,7 +128,7 @@ const OrderDetails = () => {
                             </div>
                             <div className='flex justify-between items-center mb-3'>
                                 <span className='text-gray-500'>Date</span>
-                                <span className='font-medium text-gray-800'>{order.date}</span>
+                                <span className='font-medium text-gray-800'>{formatHarare(order.createdAt)}</span>
                             </div>
                             <div className='flex justify-between items-center mb-3'>
                                 <span className='text-gray-500'>Status</span>

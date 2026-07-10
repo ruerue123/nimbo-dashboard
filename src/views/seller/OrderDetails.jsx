@@ -96,6 +96,21 @@ const OrderDetails = () => {
         return Number(price).toFixed(2)
     }
 
+    // Show the order timestamp in Harare time (UTC+2) instead of the stored
+    // server-UTC string.
+    const formatHarare = (value) => {
+        if (!value) return '—';
+        try {
+            return new Date(value).toLocaleString('en-GB', {
+                timeZone: 'Africa/Harare',
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: true
+            });
+        } catch {
+            return '—';
+        }
+    }
+
     const getStatusIcon = (status) => {
         switch (status) {
             case 'order_received':
@@ -343,7 +358,7 @@ const OrderDetails = () => {
                             </div>
                             <div className='flex justify-between text-gray-600'>
                                 <span>Date</span>
-                                <span className='font-medium text-gray-800'>{order.date}</span>
+                                <span className='font-medium text-gray-800'>{formatHarare(order.createdAt)}</span>
                             </div>
                             <div className='flex justify-between text-gray-600'>
                                 <span>Payment</span>

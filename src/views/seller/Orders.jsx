@@ -70,6 +70,21 @@ const Orders = () => {
         return Number(price).toFixed(2)
     }
 
+    // Orders are stored as UTC timestamps (server runs UTC). Display in Harare
+    // time (Africa/Harare, UTC+2) instead of the wrong stored string.
+    const formatHarare = (value) => {
+        if (!value) return '—';
+        try {
+            return new Date(value).toLocaleString('en-GB', {
+                timeZone: 'Africa/Harare',
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: true
+            });
+        } catch {
+            return '—';
+        }
+    }
+
     return (
         <div className='px-4 md:px-6 py-6'>
             {/* Header */}
@@ -156,7 +171,7 @@ const Orders = () => {
                                         </span>
                                     </td>
                                     <td className='px-6 py-4 whitespace-nowrap'>
-                                        <span className='text-sm text-gray-500'>{d.date}</span>
+                                        <span className='text-sm text-gray-500'>{formatHarare(d.createdAt)}</span>
                                     </td>
                                     <td className='px-6 py-4 whitespace-nowrap'>
                                         <Link
